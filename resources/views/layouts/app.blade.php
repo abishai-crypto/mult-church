@@ -308,7 +308,17 @@
             </a>
             @endif
 
-            @if(Auth::user()->isChurchAdmin() || Auth::user()->isSuperAdmin())
+            @if(Auth::user()->canManagePasswords())
+                <div class="sidebar-heading">Usalama na Manenosiri</div>
+                <a href="{{ route('security.passwords.index') }}" class="nav-link-custom {{ request()->routeIs('security.passwords.*') ? 'active' : '' }}">
+                    <i class="bi bi-shield-lock-fill text-warning"></i> Usimamizi wa Manenosiri
+                </a>
+                @if(Auth::user()->isChurchAdmin() || Auth::user()->isSuperAdmin())
+                    <a href="{{ route('audit.index') }}" class="nav-link-custom {{ request()->routeIs('audit.*') ? 'active' : '' }}">
+                        <i class="bi bi-journal-text"></i> Kumbukumbu za Ukaguzi
+                    </a>
+                @endif
+            @elseif(Auth::user()->isChurchAdmin() || Auth::user()->isSuperAdmin())
                 <div class="sidebar-heading">Usalama na Ukaguzi</div>
                 <a href="{{ route('audit.index') }}" class="nav-link-custom {{ request()->routeIs('audit.*') ? 'active' : '' }}">
                     <i class="bi bi-journal-text"></i> Kumbukumbu za Ukaguzi (Audit)
@@ -332,29 +342,11 @@
                 </div>
             </div>
 
-            <!-- Udhibiti wa Kulia: Jaribio la Haraka na Akaunti -->
+            <!-- Udhibiti wa Kulia: Tovuti na Akaunti -->
             <div class="d-flex align-items-center gap-3">
                 <a href="{{ route('home') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-none d-md-inline-flex align-items-center" target="_blank">
                     <i class="bi bi-globe me-1 text-primary"></i> Tovuti Kuu
                 </a>
-
-                <!-- Kitufe cha Majaribio ya Haraka (1-Click Demo Login) -->
-                <div class="dropdown d-none d-sm-block">
-                    <button class="btn btn-sm btn-light border dropdown-toggle fw-semibold rounded-pill px-3 shadow-sm" type="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-gear text-primary me-1"></i> Badili Jukumu (Majaribio)
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3" style="min-width: 240px;">
-                        <li><h6 class="dropdown-header text-uppercase">Bofya Kuingia Kirole Mara Moja:</h6></li>
-                        <li><a class="dropdown-item py-2" href="{{ route('demo.login', 'pastor') }}"><i class="bi bi-heart-pulse text-primary me-2"></i> Mchungaji Kiongozi</a></li>
-                        <li><a class="dropdown-item py-2" href="{{ route('demo.login', 'elder') }}"><i class="bi bi-person-check text-success me-2"></i> Mzee wa Kanisa</a></li>
-                        <li><a class="dropdown-item py-2" href="{{ route('demo.login', 'treasurer') }}"><i class="bi bi-cash-coin text-warning me-2"></i> Mhazini (Mtunza Hazina)</a></li>
-                        <li><a class="dropdown-item py-2" href="{{ route('demo.login', 'secretary') }}"><i class="bi bi-pen text-info me-2"></i> Katibu wa Kanisa</a></li>
-                        <li><a class="dropdown-item py-2" href="{{ route('demo.login', 'youth_leader') }}"><i class="bi bi-diagram-3 text-secondary me-2"></i> Kiongozi wa Idara (CGM)</a></li>
-                        <li><a class="dropdown-item py-2" href="{{ route('demo.login', 'member') }}"><i class="bi bi-person text-muted me-2"></i> Mshirika wa Kawaida</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item py-2" href="{{ route('demo.login', 'super_admin') }}"><i class="bi bi-shield-shaded text-danger me-2"></i> Msimamizi Mkuu (Super Admin)</a></li>
-                    </ul>
-                </div>
 
                 <!-- Akaunti ya Mtumiaji -->
                 <div class="dropdown">
@@ -384,6 +376,10 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
                         <li><a class="dropdown-item py-2" href="{{ route('profile') }}"><i class="bi bi-person-circle me-2 text-primary"></i> Wasifu Wangu</a></li>
+                        <li><a class="dropdown-item py-2" href="{{ route('profile') }}#passwordSection"><i class="bi bi-key-fill me-2 text-warning"></i> Badili Nenosiri</a></li>
+                        @if(Auth::user()->canManagePasswords())
+                            <li><a class="dropdown-item py-2" href="{{ route('security.passwords.index') }}"><i class="bi bi-shield-lock-fill me-2 text-success"></i> Usimamizi wa Manenosiri</a></li>
+                        @endif
                         <li><a class="dropdown-item py-2" href="{{ route('home') }}" target="_blank"><i class="bi bi-globe me-2 text-info"></i> Tovuti Kuu ya Kanisa</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li>

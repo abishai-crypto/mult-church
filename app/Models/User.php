@@ -80,6 +80,37 @@ class User extends Authenticatable
         return in_array($this->role, ['super_admin', 'church_admin', 'pastor', 'elder']);
     }
 
+    public function canManagePasswords(): bool
+    {
+        // Mchungaji Kiongozi, Wazee wa Kanisa, na Wasimamizi ndio wenye mamlaka ya kikanisa
+        return in_array($this->role, ['super_admin', 'church_admin', 'pastor', 'elder']);
+    }
+
+    public function canResetPasswordFor(User $targetUser): bool
+    {
+        // Super Admin ana mamlaka kamili
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        // Mchungaji Kiongozi ana mamlaka ya kikanisa kwa viongozi wote na washirika
+        if ($this->isPastor()) {
+            return !$targetUser->isSuperAdmin();
+        }
+
+        // Msimamizi wa Kanisa anaweza kubadili kwa watumishi na washirika (isipokuwa Mchungaji Kiongozi)
+        if ($this->isChurchAdmin()) {
+            return !in_array($targetUser->role, ['super_admin', 'pastor']);
+        }
+
+        // Mzee wa Kanisa ana mamlaka kikanisa juu ya viongozi wa idara na washirika
+        if ($this->isElder()) {
+            return in_array($targetUser->role, ['department_leader', 'member']);
+        }
+
+        return false;
+    }
+
     // Relationships
     public function church()
     {

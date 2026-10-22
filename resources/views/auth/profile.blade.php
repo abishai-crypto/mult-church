@@ -58,11 +58,15 @@
                 <input type="text" name="phone" class="form-control" value="{{ old('phone', $user->phone) }}" placeholder="+255 7XX XXX XXX">
             </div>
 
-            <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">Usalama na Nenosiri</h6>
+            <div id="passwordSection" class="pt-2">
+                <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                    <i class="bi bi-shield-lock-fill text-warning me-1"></i> Usalama na Kubadilisha Nenosiri Lako
+                </h6>
+            </div>
 
             <div class="mb-3">
-                <label class="form-label small fw-semibold">Nenosiri la Sasa (Linahitajika endapo unabadili nenosiri tu)</label>
-                <input type="password" name="current_password" class="form-control" placeholder="••••••••">
+                <label class="form-label small fw-semibold">Nenosiri la Sasa (Linahitajika unapotaka kubadili tu)</label>
+                <input type="password" name="current_password" class="form-control" placeholder="Weka nenosiri la sasa">
             </div>
 
             <div class="row g-2 mb-4">

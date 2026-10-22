@@ -46,52 +46,62 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
-    public function demoLogin(string $role, Request $request)
+    public function showForgotPassword()
     {
-        $emailMap = [
-            'super_admin' => 'superadmin@multichurch.org',
-            'church_admin' => 'admin@eagt.org',
-            'pastor' => 'pastor@eagt.org',
-            'elder' => 'elder@eagt.org',
-            'treasurer' => 'treasurer@eagt.org',
-            'secretary' => 'secretary@eagt.org',
-            'youth_leader' => 'youthleader@eagt.org',
-            'member' => 'member@eagt.org',
-        ];
+        return view('auth.forgot_password');
+    }
 
-        if (!isset($emailMap[$role])) {
-            return redirect()->route('login');
-        }
+    public function sendResetRequest(Request $request)
+    {
+        $validated = $request->validate([
+            'identifier' => 'required|string',
+            'requester_name' => 'nullable|string|max:150',
+            'reason' => 'nullable|string|max:500',
+        ], [
+            'identifier.required' => 'Tafadhali weka barua pepe au namba yako ya simu iliyosajiliwa kanisani.',
+        ]);
 
-        $user = User::where('email', $emailMap[$role])->first();
-        if ($user) {
-            Auth::login($user);
-            $request->session()->regenerate();
+        $identifier = trim($validated['identifier']);
+        $cleanedPhone = \App\Services\SmsService::formatTanzanianPhone($identifier);
 
-            if ($user->church_id) {
-                session(['active_church_id' => $user->church_id]);
-            } else {
-                session()->forget('active_church_id');
-            }
+        $user = User::where('email', $identifier)
+            ->orWhere('phone', $identifier)
+            ->orWhere('phone', $cleanedPhone)
+            ->first();
 
-            $swahiliRoles = [
-                'super_admin' => 'Msimamizi Mkuu wa Mfumo',
-                'church_admin' => 'Msimamizi wa Kanisa',
-                'pastor' => 'Mchungaji Kiongozi',
-                'elder' => 'Mzee wa Kanisa',
-                'treasurer' => 'Mhazini / Mtunza Hazina',
-                'secretary' => 'Katibu wa Kanisa',
-                'youth_leader' => 'Kiongozi wa Idara (CPV)',
-                'member' => 'Mshirika wa Kanisa',
-            ];
+        $church = Church::where('slug', 'eagt-golani')->first() ?? Church::first();
+        $churchId = $user ? $user->church_id : ($church ? $church->id : 1);
+        $userEmail = $user ? $user->email : (filter_var($identifier, FILTER_VALIDATE_EMAIL) ? $identifier : 'haijulikani@eagt.org');
+        $userPhone = $user ? $user->phone : (!filter_var($identifier, FILTER_VALIDATE_EMAIL) ? $identifier : null);
+        $userName = !empty($validated['requester_name']) ? $validated['requester_name'] : ($user ? $user->name : 'Muumini wa Kanisa');
 
-            $roleName = $swahiliRoles[$role] ?? $role;
+        $resetReq = \App\Models\PasswordResetRequest::create([
+            'church_id' => $churchId,
+            'user_id' => $user?->id,
+            'email' => $userEmail,
+            'phone' => $userPhone,
+            'requester_name' => $userName,
+            'reason' => $validated['reason'] ?? 'Nimesahau nenosiri la kuingilia mfumo.',
+            'status' => 'pending',
+        ]);
 
-            AuditService::log('login', "Kuingia kwa jaribio kama {$user->name} ({$roleName})");
-            return redirect()->route('dashboard')->with('success', "Karibu sana! Umeingia kama {$roleName} ({$user->name})");
-        }
+        AuditService::notifyRole(
+            $churchId,
+            ['pastor', 'elder', 'church_admin'],
+            'Ombi la Kurejesha Nenosiri la Kikanisa',
+            "Mtumiaji {$userName} ({$identifier}) ameomba kurejeshewa nenosiri. Tafadhali kagua na uidhinishe kikanisa.",
+            'warning',
+            route('security.passwords.index')
+        );
 
-        return redirect()->route('login')->withErrors(['email' => 'Akaunti ya majaribio haikupatikana.']);
+        AuditService::log(
+            'security',
+            "Ombi la kurejesha nenosiri limewasilishwa kwa {$identifier} ({$userName})",
+            'PasswordResetRequest',
+            $resetReq->id
+        );
+
+        return back()->with('success', 'Bwana Asifiwe! Ombi lako la kurejesha nenosiri limewasilishwa rasmi kwa Ofisi ya Mchungaji Kiongozi na Wazee wa Kanisa. Watahakiki utambulisho wako na utapokea nenosiri jipya la muda kwa ujumbe wa simu (SMS) au barua pepe.');
     }
 
     public function logout(Request $request)

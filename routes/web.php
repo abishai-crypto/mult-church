@@ -13,6 +13,7 @@ use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PastoralCareController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PasswordSecurityController;
 use App\Http\Controllers\SuperAdminController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,9 +22,11 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::post('/submit-prayer', [HomeController::class, 'submitPrayer'])->name('home.prayer');
 Route::post('/give-online', [HomeController::class, 'giveOnline'])->name('home.giveOnline');
 
+// Real Authentication (No Demo Simulation)
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/demo-login/{role}', [AuthController::class, 'demoLogin'])->name('demo.login');
+Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
+Route::post('/forgot-password', [AuthController::class, 'sendResetRequest'])->name('password.email');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Authenticated Routes
@@ -134,4 +137,12 @@ Route::middleware(['auth'])->group(function () {
 
     // System Audit Trail
     Route::get('/audit-logs', [AuditController::class, 'index'])->name('audit.index');
+
+    // Ecclesiastical Password Security & Oversight Console (Pastor, Elders, Admin)
+    Route::prefix('security')->name('security.')->group(function () {
+        Route::get('/passwords', [PasswordSecurityController::class, 'index'])->name('passwords.index');
+        Route::post('/passwords/reset/{user}', [PasswordSecurityController::class, 'resetUserPassword'])->name('passwords.reset');
+        Route::post('/passwords/approve/{resetRequest}', [PasswordSecurityController::class, 'approveRequest'])->name('passwords.approve');
+        Route::post('/passwords/reject/{resetRequest}', [PasswordSecurityController::class, 'rejectRequest'])->name('passwords.reject');
+    });
 });
