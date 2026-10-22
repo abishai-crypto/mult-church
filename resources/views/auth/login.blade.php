@@ -340,19 +340,19 @@
             <form action="{{ route('login') }}" method="POST">
                 @csrf
 
-                <!-- Barua Pepe -->
+                <!-- Barua Pepe au Namba ya Simu -->
                 <div class="mb-3">
                     <label class="form-label text-light small fw-semibold">
-                        <i class="bi bi-envelope-fill text-warning me-1"></i> Barua Pepe (Email Address) *
+                        <i class="bi bi-person-badge-fill text-warning me-1"></i> Barua Pepe au Namba ya Simu *
                     </label>
                     <div class="input-icon-group">
-                        <i class="bi bi-envelope icon-addon"></i>
-                        <input type="email" 
-                               name="email" 
+                        <i class="bi bi-person-circle icon-addon"></i>
+                        <input type="text" 
+                               name="login" 
                                class="form-control form-control-custom" 
-                               placeholder="mfano: jina@eagt.org au barua pepe yako" 
-                               value="{{ old('email') }}" 
-                               autocomplete="email" 
+                               placeholder="Weka barua pepe au nambari ya simu (mfano: 0715 888 999)" 
+                               value="{{ old('login') ?? session('registered_login') ?? old('email') }}" 
+                               autocomplete="username" 
                                required 
                                autofocus>
                     </div>
@@ -398,13 +398,22 @@
                 </button>
             </form>
 
+            <!-- Kujiandikisha kama Mshirika Mpya (Create Member Account) -->
+            <div class="mt-4 pt-3 border-top border-white border-opacity-10 text-center">
+                <div class="text-white-50 small mb-2">Huna akaunti ya ushirika bado?</div>
+                <a href="{{ route('register') }}" class="btn btn-outline-warning w-100 py-2 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-2 shadow-sm" style="border-width: 1.5px; letter-spacing: 0.3px;">
+                    <i class="bi bi-person-plus-fill fs-5"></i>
+                    <span>Jisajili Kama Mshirika Mpya Hapa</span>
+                </a>
+            </div>
+
             <!-- Sehemu ya Msaada na Uongozi wa Kanisa -->
-            <div class="support-box mt-4 text-center">
+            <div class="support-box mt-3 text-center">
                 <div class="small text-white-50 mb-1">
-                    <i class="bi bi-info-circle text-warning me-1"></i> <strong>Huna akaunti au unahitaji usaidizi wa kuingia?</strong>
+                    <i class="bi bi-info-circle text-warning me-1"></i> <strong>Unahitaji msaada au ushauri wa kikanisa?</strong>
                 </div>
                 <div class="small text-white text-opacity-80">
-                    Wasiliana na Katibu wa Kanisa au Wazee wa Kanisa: <span class="text-warning fw-bold">+255 754 888 999</span> / <span class="text-warning fw-bold">+255 715 123 456</span>
+                    Ofisi ya Mchungaji & Katibu: <span class="text-warning fw-bold">+255 754 111 002</span> / <span class="text-warning fw-bold">+255 754 111 005</span>
                 </div>
             </div>
 
