@@ -100,9 +100,17 @@
 
                             <!-- Pastoral Update Status Button -->
                             @if(Auth::user()->isPastor() || Auth::user()->isElder())
-                                <div class="mt-2 pt-2 border-top d-flex justify-content-end">
+                                <div class="mt-2 pt-2 border-top d-flex justify-content-end gap-2">
+                                    @php
+                                        $prayerPhone = $prayer->requester_phone ?? $prayer->member?->phone;
+                                    @endphp
+                                    @if($prayerPhone)
+                                        <a href="{{ \App\Services\WhatsAppService::prayerChatUrl($prayer->requester_name, $prayerPhone, $prayer->category) }}" target="_blank" class="btn btn-outline-success btn-sm rounded-pill">
+                                            <i class="bi bi-whatsapp me-1"></i> WhatsApp
+                                        </a>
+                                    @endif
                                     <button class="btn btn-outline-dark btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#updatePrayerModal_{{ $prayer->id }}">
-                                        <i class="bi bi-pencil-square me-1"></i> Badili Hali / Weka Maoni ya Kichungaji
+                                        <i class="bi bi-pencil-square me-1"></i> Badili Hali / Maoni
                                     </button>
                                 </div>
 

@@ -9,6 +9,11 @@
             <i class="bi bi-arrow-left me-1"></i> Rudi Kwenye Daftari
         </a>
         <div class="d-flex gap-2">
+            @if($member->phone)
+                <a href="{{ \App\Services\WhatsAppService::chatUrl($member->phone, 'Bwana Asifiwe ' . $member->first_name . '! Tunawasiliana nawe kutoka uongozi wa kanisa la EAGT Golani.') }}" target="_blank" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm">
+                    <i class="bi bi-whatsapp me-1"></i> WhatsApp
+                </a>
+            @endif
             <a href="{{ route('members.edit', $member) }}" class="btn btn-sm btn-light border rounded-pill">
                 <i class="bi bi-pencil me-1"></i> Hariri Taarifa
             </a>
@@ -72,9 +77,16 @@
                         <span class="text-muted small">Tarehe ya Kujiunga:</span>
                         <strong class="text-dark small">{{ $member->joined_date ? $member->joined_date->format('d M, Y') : 'Haikutajwa' }}</strong>
                     </li>
-                    <li class="mb-2 d-flex justify-content-between">
+                    <li class="mb-2 d-flex justify-content-between align-items-center">
                         <span class="text-muted small">Namba ya Simu:</span>
-                        <strong class="text-dark small">{{ $member->phone ?? 'Hakuna' }}</strong>
+                        <div>
+                            <strong class="text-dark small me-2">{{ $member->phone ?? 'Hakuna' }}</strong>
+                            @if($member->phone)
+                                <a href="{{ \App\Services\WhatsAppService::chatUrl($member->phone) }}" target="_blank" class="btn btn-outline-success btn-sm py-0 px-2 rounded-pill" style="font-size: 11px;">
+                                    <i class="bi bi-whatsapp"></i> Chat
+                                </a>
+                            @endif
+                        </div>
                     </li>
                     <li class="d-flex justify-content-between">
                         <span class="text-muted small">Barua Pepe:</span>

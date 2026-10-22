@@ -271,6 +271,7 @@
                         <th>Tarehe</th>
                         <th>Aliyerekodi</th>
                         <th>Aliyethibitisha</th>
+                        <th>Risiti ya WhatsApp</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -313,6 +314,19 @@
                                 <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">
                                     <i class="bi bi-shield-check me-1"></i> {{ $txn->approvedBy?->name ?? 'Mzee/Mchungaji' }}
                                 </span>
+                            </td>
+                            <td>
+                                @php
+                                    $donorPhone = $txn->member?->phone;
+                                    $donorName = $txn->member ? $txn->member->full_name : ($txn->donor_name ?? 'Mshirika');
+                                @endphp
+                                @if($donorPhone)
+                                    <a href="{{ \App\Services\WhatsAppService::receiptUrl($donorName, $donorPhone, (float)$txn->amount, $txn->transaction_code, 'EAGT Golani', $txn->category) }}" target="_blank" class="btn btn-outline-success btn-sm rounded-pill px-2 py-1 shadow-sm" style="font-size: 11px;" title="Tuma Risiti Rasmi kwa WhatsApp">
+                                        <i class="bi bi-whatsapp text-success me-1"></i> WhatsApp
+                                    </a>
+                                @else
+                                    <span class="text-muted small">-</span>
+                                @endif
                             </td>
                         </tr>
                     @empty

@@ -308,6 +308,66 @@
             background: rgba(217, 119, 6, 0.05);
             transform: translateY(-4px);
         }
+
+        /* WhatsApp Floating Widget */
+        .whatsapp-float-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1080;
+        }
+
+        .whatsapp-float-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            box-shadow: 0 8px 24px rgba(37, 211, 102, 0.45);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: pulse-green 2.5s infinite;
+        }
+
+        .whatsapp-float-btn:hover {
+            transform: scale(1.1) rotate(5deg);
+            color: #ffffff;
+        }
+
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6); }
+            70% { box-shadow: 0 0 0 16px rgba(37, 211, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+
+        .whatsapp-popup-card {
+            display: none;
+            position: absolute;
+            bottom: 75px;
+            right: 0;
+            width: 320px;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .whatsapp-popup-card.show {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -1827,8 +1887,79 @@
     </div>
 </div>
 
+<!-- Floating WhatsApp Widget -->
+<div class="whatsapp-float-container">
+    <!-- Popup Card -->
+    <div class="whatsapp-popup-card" id="whatsappPopup">
+        <div class="p-3 text-white" style="background: linear-gradient(135deg, #128C7E 0%, #075E54 100%);">
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <i class="bi bi-whatsapp fs-4"></i>
+                <h6 class="fw-bold mb-0">EAGT Golani WhatsApp</h6>
+            </div>
+            <div class="small text-white-50 d-flex align-items-center gap-1">
+                <span class="rounded-circle bg-success" style="width: 8px; height: 8px; display: inline-block;"></span>
+                Mtandaoni • Zungumza nasi sasa
+            </div>
+        </div>
+        <div class="p-3 bg-light" style="font-size: 13px; color: #475569;">
+            Bwana Asifiwe! Chagua ofisi au idara unayotaka kuwasiliana nayo:
+        </div>
+        <div class="list-group list-group-flush small">
+            <a href="https://wa.me/255754111002?text={{ urlencode('Bwana Asifiwe Mchungaji! Ninaomba ushauri na maombi...') }}" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center gap-3 p-3">
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; flex-shrink: 0;">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <div>
+                    <div class="fw-bold text-dark">Mchungaji Kiongozi</div>
+                    <div class="text-muted" style="font-size: 11px;">Ushauri wa Kichungaji & Maombi</div>
+                </div>
+            </a>
+            <a href="https://wa.me/255754123456?text={{ urlencode('Bwana Asifiwe! Ninaulizia kuhusu kanisa na ratiba za ibada EAGT Golani...') }}" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center gap-3 p-3">
+                <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; flex-shrink: 0;">
+                    <i class="bi bi-building"></i>
+                </div>
+                <div>
+                    <div class="fw-bold text-dark">Ofisi ya Kanisa / Katibu</div>
+                    <div class="text-muted" style="font-size: 11px;">Ratiba, Vyeti vya Ubatizo & Taarifa</div>
+                </div>
+            </a>
+            <a href="https://wa.me/255765222333?text={{ urlencode('Bwana Asifiwe Kiongozi wa Vijana! Ningependa kujiunga na Vijana CGM EAGT Golani...') }}" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center gap-3 p-3">
+                <div class="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; flex-shrink: 0;">
+                    <i class="bi bi-fire"></i>
+                </div>
+                <div>
+                    <div class="fw-bold text-dark">Vijana CGM (Christ Gospel Messengers)</div>
+                    <div class="text-muted" style="font-size: 11px;">Kambi za Vijana, Uinjilisti & Kwaya</div>
+                </div>
+            </a>
+        </div>
+        <div class="p-2 text-center bg-light border-top">
+            <small class="text-muted" style="font-size: 11px;">Tunaanza kujibu ndani ya dakika chache</small>
+        </div>
+    </div>
+
+    <!-- Float Button -->
+    <button class="whatsapp-float-btn" type="button" onclick="toggleWhatsAppPopup()" title="Zungumza nasi WhatsApp">
+        <i class="bi bi-whatsapp"></i>
+    </button>
+</div>
+
 <!-- Countdown Timer Script -->
 <script>
+    function toggleWhatsAppPopup() {
+        const popup = document.getElementById('whatsappPopup');
+        popup.classList.toggle('show');
+    }
+
+    // Funga popup mtumiaji akibonyeza nje
+    document.addEventListener('click', function(e) {
+        const container = document.querySelector('.whatsapp-float-container');
+        const popup = document.getElementById('whatsappPopup');
+        if (container && !container.contains(e.target)) {
+            popup?.classList.remove('show');
+        }
+    });
+
     function updateCountdown() {
         const now = new Date();
         const nextSunday = new Date();

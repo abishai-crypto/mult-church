@@ -118,7 +118,12 @@
                                 </span>
                             </td>
                             <td>
-                                <div class="d-flex align-items-center gap-2">
+                                <div class="d-flex align-items-center gap-1">
+                                    @if($m->phone)
+                                        <a href="{{ \App\Services\WhatsAppService::chatUrl($m->phone, 'Bwana Asifiwe ' . $m->first_name . '!') }}" target="_blank" class="btn btn-sm btn-outline-success border" title="Zungumza naye WhatsApp">
+                                            <i class="bi bi-whatsapp"></i>
+                                        </a>
+                                    @endif
                                     <a href="{{ route('members.show', $m) }}" class="btn btn-sm btn-light border" title="Tazama Wasifu">
                                         <i class="bi bi-eye"></i>
                                     </a>

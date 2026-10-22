@@ -17,10 +17,14 @@ Mfumo thabiti, wa kisasa, na salama wa wavuti na simu (PWA) uliotengenezwa mahus
 * Inasaidia mitandao yote ya simu Tanzania: **M-Pesa, Tigo Pesa, Airtel Money, Halopesa** pamoja na benki za **CRDB na NMB**.
 * Inatoa nambari ya uthibitisho (`TXN-ONL-XXXXXX`) na kutuma SMS ya shukrani kiotomatiki kwa mtoaji.
 
-### 3. Kituo cha Mawasiliano ya SMS (Automated & Bulk SMS Center)
-* **SMS za Kiotomatiki:** Mshirika anapothibitishiwa Zaka/Sadaka anapokea risiti ya SMS kwenye simu yake mara moja.
-* **Ujumbe wa Wingi (Bulk SMS):** Kutuma SMS kwa waumini wote walio hai au kwa idara maalum (k.m. Vijana CGM, Wanawake WWK, Kwaya, Mashemasi).
-* **Viunganishi vya SMS (Gateways):** Inasaidia **Beem Africa**, **NextSMS**, na **Twilio** (pamoja na hali ya majaribio ya Simulation/Log).
+### 3. Kituo cha Mawasiliano: SMS na WhatsApp (Automated SMS & WhatsApp Hub)
+* **Kitufe cha Moja kwa Moja cha WhatsApp (Floating WhatsApp Widget):** Tovuti ina kitufe cha kisasa cha WhatsApp kinachomwezesha mgeni au mshirika kuchagua na kuwasiliana papo hapo na:
+  * Mchungaji Kiongozi (Ushauri na Maombi)
+  * Ofisi ya Kanisa / Katibu (Ratiba na Vyeti)
+  * Vijana CGM (Kambi na Kwaya)
+* **Risiti za Zaka kwa WhatsApp (WhatsApp Receipts):** Viongozi wa hazina wanaweza kubofya kitufe cha *"WhatsApp Risiti"* kwenye orodha ya miamala iliyothibitishwa, ikifungua ujumbe uliopangika vizuri wenye aya ya Malaki 3:10, jina la mshirika, kiasi, na namba ya kumbukumbu.
+* **Mawasiliano ya Muumini (Click-to-Chat):** Kila mshirika kwenye Daftari la Waumini ana kitufe cha kijani cha WhatsApp kwa ajili ya kufungua mazungumzo naye bila kulazimika kusave namba kwanza kwenye simu.
+* **SMS za Kiotomatiki na za Wingi (Bulk SMS):** Kutuma SMS kwa waumini wote au kwa idara maalum (k.m. Vijana CGM, Wanawake WWK, Kwaya, Mashemasi) kupitia **Beem Africa**, **NextSMS**, au **Twilio**.
 
 ### 4. Daftari Kuu la Waumini na Idara
 * Usajili wa washirika wenye nambari maalum za utambulisho (k.m. `EAGT-MBR-0001`).
