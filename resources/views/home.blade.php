@@ -1418,37 +1418,6 @@
                 </div>
             </div>
         </div>
-        @else
-            <div class="row justify-content-center">
-                <div class="col-lg-10">
-                    <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white">
-                        <div class="row g-0 align-items-center">
-                            <div class="col-lg-5">
-                                <img src="{{ asset('assets/images/pastor_preaching_red_tie.jpg') }}" alt="Mchungaji Lukas J. Kittu Akihubiri" class="w-100 h-100 object-fit-cover" style="min-height: 360px;">
-                            </div>
-                            <div class="col-lg-7 p-4 p-md-5">
-                                <span class="badge bg-danger text-white px-3 py-2 rounded-pill fw-bold mb-3">
-                                    <i class="bi bi-mic-fill me-1"></i> NENO LA MSALABA
-                                </span>
-                                <h3 class="fw-bold text-dark mb-2">Ujumbe wa Uzima na Nguvu ya Roho Mtakatifu</h3>
-                                <h6 class="text-primary mb-3 fw-bold">Mchungaji Lukas J. Kittu • Ibada ya Jumapili</h6>
-                                <p class="text-muted" style="line-height: 1.8;">
-                                    "Kwa maana neno la msalaba kwao wanaopotea ni upuzi; bali kwetu sisi tunaookolewa ni nguvu ya Mungu." — <strong>1 Wakorintho 1:18</strong>. Karibu ushiriki nasi hekaluni kupokea Neno lililovuviwa ambalo linabadilisha maisha, linavunja vifungo na kuleta uponyaji.
-                                </p>
-                                <div class="d-flex flex-wrap gap-2 mt-4">
-                                    <a href="#ratiba" class="btn btn-warning rounded-pill px-4 py-2 fw-bold text-dark shadow-sm">
-                                        <i class="bi bi-calendar-check-fill me-1"></i> Ratiba ya Ibada
-                                    </a>
-                                    <a href="#maombi" class="btn btn-outline-danger rounded-pill px-4 py-2 fw-semibold">
-                                        <i class="bi bi-heart-fill me-1"></i> Ombi la Maombi
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
     </div>
 </section>
 
