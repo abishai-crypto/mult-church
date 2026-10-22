@@ -13,23 +13,21 @@ services:
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
-        value: "false"
+        value: "true"
       - key: APP_KEY
-        generateValue: true
+        value: "base64:z6UD+5SymhkfLyrMqyBfQKN3dO6miSpuL78Tn9Jmk9c="
       - key: DB_CONNECTION
         value: pgsql
       - key: DATABASE_URL
         fromDatabase:
           name: mult-church-db
           property: connectionString
-      - key: SEED_DATABASE
-        value: "true"
       - key: SESSION_DRIVER
-        value: database
+        value: file
       - key: CACHE_STORE
-        value: database
+        value: file
       - key: QUEUE_CONNECTION
-        value: database
+        value: sync
 
 databases:
   - name: mult-church-db

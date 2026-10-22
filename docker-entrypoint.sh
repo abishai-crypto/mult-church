@@ -3,40 +3,58 @@ set -e
 
 echo "=== EAGT GOLANI MULTI-CHURCH APPLICATION INITIALIZING ==="
 
-# Wait briefly if database connection parameters are provided
-if [ -n "$DB_HOST" ]; then
-    echo "Checking database connection to $DB_HOST:$DB_PORT..."
+# 1. Hakikisha APP_KEY ni halali ya base64
+if [ -z "$APP_KEY" ] || ! echo "$APP_KEY" | grep -q "^base64:"; then
+    echo "Setting valid Laravel APP_KEY..."
+    export APP_KEY="base64:z6UD+5SymhkfLyrMqyBfQKN3dO6miSpuL78Tn9Jmk9c="
 fi
 
-# Ensure storage directories exist and have proper permissions
+# 2. Hakikisha storage directories zipo na zina permissions sahihi
 mkdir -p /var/www/storage/framework/cache/data \
          /var/www/storage/framework/sessions \
          /var/www/storage/framework/views \
          /var/www/storage/logs \
          /var/www/bootstrap/cache
 
-chmod -R 775 /var/www/storage /var/www/bootstrap/cache || true
+chmod -R 777 /var/www/storage /var/www/bootstrap/cache || true
 chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache || true
 
-# Run database migrations in production
-if [ "$SKIP_MIGRATIONS" != "true" ]; then
-    echo "Running database migrations..."
-    php artisan migrate --force || echo "Warning: Migration failed or database not ready yet."
+# 3. Safisha cache za zamani ili zisilete mgongano wa mazingira
+php artisan config:clear || true
+php artisan route:clear || true
+php artisan view:clear || true
+
+# 4. Subiri Database iwe tayari (hadi sekunde 60)
+echo "Checking database connectivity..."
+DB_READY=false
+for i in $(seq 1 30); do
+    if php artisan migrate:status >/dev/null 2>&1; then
+        echo "Database connection verified and ready!"
+        DB_READY=true
+        break
+    fi
+    echo "Database provisioning or starting up... waiting ($i/30)"
+    sleep 2
+done
+
+# 5. Endesha Migrations na Seeders
+if [ "$DB_READY" = "true" ]; then
+    echo "Executing database migrations..."
+    php artisan migrate --force || echo "Notice: Migrations finished with warnings."
+
+    echo "Checking if church database needs initial seeding..."
+    php artisan db:seed --force || echo "Notice: Seeding completed or skipped."
+else
+    echo "Warning: Database not reachable after 60s. Application will attempt to start regardless."
 fi
 
-# Run seeders if requested or first run
-if [ "$SEED_DATABASE" = "true" ]; then
-    echo "Seeding initial church data..."
-    php artisan db:seed --force || echo "Warning: Database seeding skipped or already seeded."
-fi
+# 6. Unganisha storage link
+php artisan storage:link || true
 
-# Optimize Laravel for production
-php artisan config:cache || true
-php artisan route:cache || true
-php artisan view:cache || true
-
-# Determine port (Render assigns $PORT, default to 10000 or 80)
+# 7. Washa Web Server kwenye PORT ya Render
 TARGET_PORT="${PORT:-10000}"
-echo "Starting Application on port $TARGET_PORT..."
+echo "====================================================="
+echo "Application ready! Listening on 0.0.0.0:$TARGET_PORT"
+echo "====================================================="
 
 exec php artisan serve --host=0.0.0.0 --port="$TARGET_PORT"
