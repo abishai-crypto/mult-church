@@ -16,6 +16,12 @@ services:
         value: "true"
       - key: APP_KEY
         value: "base64:z6UD+5SymhkfLyrMqyBfQKN3dO6miSpuL78Tn9Jmk9c="
+      - key: APP_URL
+        value: "https://mult-church-web.onrender.com"
+      - key: ASSET_URL
+        value: "https://mult-church-web.onrender.com"
+      - key: FORCE_HTTPS
+        value: "true"
       - key: DB_CONNECTION
         value: pgsql
       - key: DATABASE_URL
