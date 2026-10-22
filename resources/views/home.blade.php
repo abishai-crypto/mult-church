@@ -1382,36 +1382,42 @@
             <p class="text-muted">Sikiliza na utazame mahubiri ya ukombozi, imani na nguvu ya Roho Mtakatifu kutoka hekalu la Golani.</p>
         </div>
 
-        @if($video)
-            <div class="row justify-content-center">
-                <div class="col-lg-10">
-                    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-                        <div class="ratio ratio-16x9">
-                            <iframe src="https://www.youtube.com/embed/{{ $video->youtube_id }}" title="{{ $video->title }}" allowfullscreen></iframe>
-                        </div>
-                        <div class="p-4 bg-white">
-                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
-                                <div>
-                                    <span class="badge bg-danger px-3 py-2 rounded-pill me-2">
-                                        <i class="bi bi-youtube me-1"></i> Mahubiri ya EAGT Golani
-                                    </span>
-                                    <small class="text-muted"><i class="bi bi-person-fill text-primary me-1"></i> {{ $video->preacher_name ?? 'Mchungaji Lukas J. Kittu' }}</small>
-                                </div>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <a href="https://youtu.be/DGN4B4CFn3g?si=wWVp4S-zjOJqjY2M" target="_blank" rel="noopener" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold">
-                                        <i class="bi bi-play-circle-fill me-1"></i> Tazama YouTube
-                                    </a>
-                                    <a href="https://youtube.com/@eagt_golani?si=MQXrKVblnH6E7A7H" target="_blank" rel="noopener" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold text-white shadow-sm">
-                                        <i class="bi bi-youtube me-1"></i> Jiunge na Chaneli (Subscribe)
-                                    </a>
-                                </div>
+        @php
+            $sermonYtId = ($video && !empty($video->youtube_id) && $video->youtube_id !== 'kJQP7kiw5Fk') ? $video->youtube_id : 'DGN4B4CFn3g';
+            $sermonTitle = ($video && !empty($video->title) && $video->youtube_id !== 'kJQP7kiw5Fk') ? $video->title : 'Somo: Je, Umegeuzwa Kuwa Mtu Mwingine? | Mchungaji Lukas J. Kittu';
+            $sermonPreacher = ($video && !empty($video->preacher_name) && $video->youtube_id !== 'kJQP7kiw5Fk') ? $video->preacher_name : 'Mchungaji Lukas J. Kittu';
+            $sermonDesc = ($video && !empty($video->description) && $video->youtube_id !== 'kJQP7kiw5Fk') ? $video->description : 'Mahubiri ya Neno la Mungu kutoka kwa Mchungaji Kiongozi Lukas J. Kittu katika Hekalu Kuu la EAGT Golani, Kimara-Suka: "Naye Roho wa BWANA atakujilia kwa nguvu, nawe utatabiri pamoja nao, nawe UTAGEUZWA kuwa mtu mwingine." (1 Samweli 10:6). Sikiliza ujumbe huu upokee upako na mpenyo wa maisha yako.';
+        @endphp
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                    <div class="ratio ratio-16x9">
+                        <iframe src="https://www.youtube.com/embed/{{ $sermonYtId }}" title="{{ $sermonTitle }}" allowfullscreen></iframe>
+                    </div>
+                    <div class="p-4 bg-white">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                            <div>
+                                <span class="badge bg-danger px-3 py-2 rounded-pill me-2">
+                                    <i class="bi bi-youtube me-1"></i> Mahubiri ya EAGT Golani
+                                </span>
+                                <small class="text-muted"><i class="bi bi-person-fill text-primary me-1"></i> {{ $sermonPreacher }}</small>
                             </div>
-                            <h4 class="fw-bold text-dark mb-2">{{ $video->title }}</h4>
-                            <p class="text-muted mb-0 small" style="line-height: 1.7;">{{ $video->description }}</p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="https://youtu.be/{{ $sermonYtId }}?si=wWVp4S-zjOJqjY2M" target="_blank" rel="noopener" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold">
+                                    <i class="bi bi-play-circle-fill me-1"></i> Tazama YouTube
+                                </a>
+                                <a href="https://youtube.com/@eagt_golani?si=MQXrKVblnH6E7A7H" target="_blank" rel="noopener" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold text-white shadow-sm">
+                                    <i class="bi bi-youtube me-1"></i> Jiunge na Chaneli (Subscribe)
+                                </a>
+                            </div>
                         </div>
+                        <h4 class="fw-bold text-dark mb-2">{{ $sermonTitle }}</h4>
+                        <p class="text-muted mb-0 small" style="line-height: 1.7;">{{ $sermonDesc }}</p>
                     </div>
                 </div>
             </div>
+        </div>
         @else
             <div class="row justify-content-center">
                 <div class="col-lg-10">

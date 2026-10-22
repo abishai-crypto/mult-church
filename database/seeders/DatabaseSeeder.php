@@ -666,17 +666,17 @@ class DatabaseSeeder extends Seeder
             'created_by' => $pastor->id,
         ]);
 
-        // 13. YouTube Sermons
+        // 13. YouTube Sermons - Mahubiri ya EAGT Golani
         YoutubeVideo::create([
             'church_id' => $church1->id,
-            'title' => 'Nguvu ya Maombi Katika Kuvunja Vifungo vya Kifamilia',
-            'video_url' => 'https://www.youtube.com/watch?v=kJQP7kiw5Fk',
-            'youtube_id' => 'kJQP7kiw5Fk',
+            'title' => 'Somo: Je, Umegeuzwa Kuwa Mtu Mwingine? | Mchungaji Lukas J. Kittu',
+            'video_url' => 'https://www.youtube.com/watch?v=DGN4B4CFn3g',
+            'youtube_id' => 'DGN4B4CFn3g',
             'is_live' => false,
-            'preacher_name' => 'Mchungaji Kiongozi - EAGT Golani',
-            'sermon_series' => 'Ukombozi Kamili',
-            'sermon_date' => now()->subDays(6)->format('Y-m-d'),
-            'description' => 'Ujumbe mzito wa kiroho uliohubiriwa katika Ibada Kuu ya Jumapili hekalu la Golani, Kimara-Suka.',
+            'preacher_name' => 'Mchungaji Lukas J. Kittu',
+            'sermon_series' => 'Kugeuzwa na Roho Mtakatifu (1 Samweli 10:6)',
+            'sermon_date' => now()->subDays(3)->format('Y-m-d'),
+            'description' => 'Mahubiri ya Neno la Mungu kutoka kwa Mchungaji Kiongozi Lukas J. Kittu katika Hekalu Kuu la EAGT Golani, Kimara-Suka Dar es Salaam: "Naye Roho wa BWANA atakujilia kwa nguvu, nawe utatabiri pamoja nao, nawe UTAGEUZWA kuwa mtu mwingine." (1 Samweli 10:6). Sikiliza ujumbe huu upokee upako na mpenyo wa maisha yako.',
             'added_by' => $secretary->id,
         ]);
 
