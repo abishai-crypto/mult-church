@@ -22,6 +22,10 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
         $isSuperAdminGlobal = $user->isSuperAdmin() && !session()->has('active_church_id');
 
         if ($isSuperAdminGlobal) {
@@ -42,13 +46,50 @@ class DashboardController extends Controller
             ));
         }
 
-        // Muktadha wa Kanisa Husika (EAGT Golani)
+        // Muktadha wa Kanisa Husika (EAGT Golani) na Fallback Imara
         $churchId = session('active_church_id') ?? $user->church_id;
-        $church = Church::find($churchId);
+        $church = null;
+        if ($churchId) {
+            $church = Church::find($churchId);
+        }
+        if (!$church) {
+            $church = Church::where('slug', 'eagt-golani')->first() ?? Church::first();
+        }
+        if (!$church) {
+            $church = Church::firstOrCreate(
+                ['slug' => 'eagt-golani'],
+                [
+                    'name' => 'EVANGELIST ASSEMBLIES OF GOD TANZANIA (EAGT)',
+                    'code' => 'EAGT-GLN',
+                    'tagline' => 'Golani, Kimara-Suka - Dar es Salaam | Neno la Msalaba ni Nguvu ya Mungu',
+                    'email' => 'golani@eagt.org',
+                    'phone' => '+255 754 123 456',
+                    'address' => 'Mtaa wa Golani, Kimara-Suka, Manispaa ya Ubungo, Dar es Salaam, Tanzania',
+                    'currency' => 'TZS',
+                    'currency_symbol' => 'Tsh',
+                    'timezone' => 'Africa/Dar_es_Salaam',
+                    'primary_color' => '#1e3a8a',
+                    'secondary_color' => '#d97706',
+                    'modules' => ['members', 'finances', 'attendance', 'departments', 'pastoral_care', 'documents', 'media', 'projects', 'assets', 'events'],
+                    'subscription_status' => 'active',
+                    'subscription_expires_at' => now()->addYears(5),
+                    'is_active' => true,
+                ]
+            );
+        }
 
-        $totalMembers = Member::count();
-        $activeMembers = Member::where('membership_status', 'Active')->count();
-        $departmentsCount = Department::where('is_active', true)->count();
+        // Unganisha mtumiaji kwenye kanisa hili na weka session
+        if ($church && !$user->church_id && !$user->isSuperAdmin() && $user->exists) {
+            $user->church_id = $church->id;
+            $user->saveQuietly();
+        }
+        if ($church) {
+            session(['active_church_id' => $church->id]);
+        }
+
+        $totalMembers = (int) Member::count();
+        $activeMembers = (int) Member::where('membership_status', 'Active')->count();
+        $departmentsCount = (int) Department::where('is_active', true)->count();
 
         // Mahudhurio
         $latestAttendance = Attendance::orderBy('attendance_date', 'desc')->first();
@@ -58,11 +99,16 @@ class DashboardController extends Controller
             ->get();
 
         $attendanceChartData = [
-            'labels' => $recentAttendances->map(fn($a) => $a->attendance_date->format('d M'))->toArray(),
-            'total' => $recentAttendances->pluck('total_count')->toArray(),
-            'men' => $recentAttendances->pluck('men_count')->toArray(),
-            'women' => $recentAttendances->pluck('women_count')->toArray(),
-            'children' => $recentAttendances->pluck('children_count')->toArray(),
+            'labels' => $recentAttendances->map(function ($a) {
+                if ($a->attendance_date) {
+                    return is_string($a->attendance_date) ? date('d M', strtotime($a->attendance_date)) : $a->attendance_date->format('d M');
+                }
+                return '';
+            })->toArray(),
+            'total' => $recentAttendances->map(fn($a) => (int) ($a->total_count ?? 0))->toArray(),
+            'men' => $recentAttendances->map(fn($a) => (int) ($a->men_count ?? 0))->toArray(),
+            'women' => $recentAttendances->map(fn($a) => (int) ($a->women_count ?? 0))->toArray(),
+            'children' => $recentAttendances->map(fn($a) => (int) ($a->children_count ?? 0))->toArray(),
         ];
 
         // SHERIA YA KANISA: 
@@ -74,27 +120,27 @@ class DashboardController extends Controller
 
         if ($isMember) {
             // Mshirika anaona michango ya ujenzi na makusanyo mengine ya miradi pekee
-            $totalConfirmedIncome = FinancialTransaction::where('status', 'confirmed')
+            $totalConfirmedIncome = (float) (FinancialTransaction::where('status', 'confirmed')
                 ->whereIn('category', ['building_offering', 'special_contribution', 'other_income'])
-                ->sum('amount');
-            $totalTithes = null;
-            $totalPendingOfferings = 0;
+                ->sum('amount') ?? 0);
+            $totalTithes = 0.0;
+            $totalPendingOfferings = 0.0;
             $pendingCount = 0;
         } elseif ($isTreasurer) {
-            $totalConfirmedIncome = FinancialTransaction::where('status', 'confirmed')
+            $totalConfirmedIncome = (float) (FinancialTransaction::where('status', 'confirmed')
                 ->where('category', '!=', 'tithe')
-                ->sum('amount');
-            $totalTithes = null;
-            $totalPendingOfferings = FinancialTransaction::where('status', 'pending')->sum('amount');
-            $pendingCount = FinancialTransaction::where('status', 'pending')->count();
+                ->sum('amount') ?? 0);
+            $totalTithes = 0.0;
+            $totalPendingOfferings = (float) (FinancialTransaction::where('status', 'pending')->sum('amount') ?? 0);
+            $pendingCount = (int) FinancialTransaction::where('status', 'pending')->count();
         } else {
-            $totalConfirmedIncome = FinancialTransaction::where('status', 'confirmed')->sum('amount');
-            $totalTithes = FinancialTransaction::where('status', 'confirmed')->where('category', 'tithe')->sum('amount');
-            $totalPendingOfferings = FinancialTransaction::where('status', 'pending')->sum('amount');
-            $pendingCount = FinancialTransaction::where('status', 'pending')->count();
+            $totalConfirmedIncome = (float) (FinancialTransaction::where('status', 'confirmed')->sum('amount') ?? 0);
+            $totalTithes = (float) (FinancialTransaction::where('status', 'confirmed')->where('category', 'tithe')->sum('amount') ?? 0);
+            $totalPendingOfferings = (float) (FinancialTransaction::where('status', 'pending')->sum('amount') ?? 0);
+            $pendingCount = (int) FinancialTransaction::where('status', 'pending')->count();
         }
 
-        $totalExpenses = Expense::where('status', 'approved')->sum('amount');
+        $totalExpenses = (float) (Expense::where('status', 'approved')->sum('amount') ?? 0);
         $netBalance = $totalConfirmedIncome - $totalExpenses;
 
         // Mgawanyo wa Mapato kwa Chati
@@ -123,7 +169,7 @@ class DashboardController extends Controller
             $sum = FinancialTransaction::where('status', 'confirmed')
                 ->where('category', $catKey)
                 ->sum('amount');
-            $financeCategoriesData[$catLabel] = (float) $sum;
+            $financeCategoriesData[$catLabel] = (float) ($sum ?? 0);
         }
 
         // Matangazo na Matukio
@@ -134,7 +180,7 @@ class DashboardController extends Controller
         $activeProjects = Project::where('status', 'in_progress')->take(3)->get();
 
         // Maombi yanayosubiri
-        $pendingPrayersCount = PrayerRequest::where('status', 'pending')->count();
+        $pendingPrayersCount = (int) PrayerRequest::where('status', 'pending')->count();
 
         // Miamala ya hivi karibuni
         $recentTransactionsQuery = FinancialTransaction::with(['member', 'enteredBy'])

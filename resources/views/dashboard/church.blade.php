@@ -9,7 +9,7 @@
         <div class="d-flex align-items-center gap-3">
             <img src="{{ asset('assets/images/eagt_logo.jpg') }}" alt="EAGT Logo" class="rounded-circle shadow-sm flex-shrink-0" style="width: 52px; height: 52px; object-fit: contain; background: #fff; padding: 2px; border: 2px solid #d97706;">
             <div>
-                <h3 class="fw-bold mb-0 text-dark">{{ $church->name }}</h3>
+                <h3 class="fw-bold mb-0 text-dark">{{ $church->name ?? 'EVANGELIST ASSEMBLIES OF GOD TANZANIA (EAGT) - GOLANI' }}</h3>
                 <p class="text-muted mb-0 small">
                     <i class="bi bi-geo-alt-fill text-danger me-1"></i> Golani, Kimara-Suka - Dar es Salaam | Mwaka wa Uamsho na Ukombozi
                 </p>
@@ -56,7 +56,7 @@
                     <i class="bi bi-shield-lock-fill"></i>
                 </div>
                 <div>
-                    <h6 class="fw-bold mb-0">Uthibitisho wa Wazee wa Kanisa / Mchungaji Unahitajika: Miamala {{ $pendingCount }} (Tsh {{ number_format($totalPendingOfferings) }})</h6>
+                    <h6 class="fw-bold mb-0">Uthibitisho wa Wazee wa Kanisa / Mchungaji Unahitajika: Miamala {{ $pendingCount }} (Tsh {{ number_format($totalPendingOfferings ?? 0) }})</h6>
                     <small class="text-dark-emphasis">Kuna mapato yaliyoingizwa na yanangoja uthibitisho wako kabla ya kuingizwa rasmi kwenye leja ya kanisa au kukabidhiwa kwa Mchungaji.</small>
                 </div>
             </div>
@@ -72,8 +72,8 @@
             <div class="stat-card" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
                 <div class="stat-card-icon"><i class="bi bi-people-fill"></i></div>
                 <div class="text-white-50 text-uppercase small fw-bold">Jumla ya Waumini</div>
-                <h2 class="fw-bold my-2 text-white">{{ number_format($totalMembers) }}</h2>
-                <div class="small text-white-50"><span class="badge bg-white bg-opacity-25">{{ $activeMembers }} Wapo Hai</span> kwenye daftari</div>
+                <h2 class="fw-bold my-2 text-white">{{ number_format($totalMembers ?? 0) }}</h2>
+                <div class="small text-white-50"><span class="badge bg-white bg-opacity-25">{{ $activeMembers ?? 0 }} Wapo Hai</span> kwenye daftari</div>
             </div>
         </div>
 
@@ -81,10 +81,10 @@
             <div class="stat-card" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
                 <div class="stat-card-icon"><i class="bi bi-clipboard-check-fill"></i></div>
                 <div class="text-white-50 text-uppercase small fw-bold">Mahudhurio ya Jumapili</div>
-                <h2 class="fw-bold my-2 text-white">{{ $latestAttendance ? number_format($latestAttendance->total_count) : '0' }}</h2>
+                <h2 class="fw-bold my-2 text-white">{{ $latestAttendance ? number_format($latestAttendance->total_count ?? 0) : '0' }}</h2>
                 <div class="small text-white-50">
                     @if($latestAttendance)
-                        {{ $latestAttendance->men_count }} Wanaume, {{ $latestAttendance->women_count }} Wanawake, {{ $latestAttendance->children_count }} Watoto
+                        {{ $latestAttendance->men_count ?? 0 }} Wanaume, {{ $latestAttendance->women_count ?? 0 }} Wanawake, {{ $latestAttendance->children_count ?? 0 }} Watoto
                     @else
                         Hakuna rekodi bado
                     @endif
@@ -104,7 +104,7 @@
                         Hazina Iliyothibitishwa
                     @endif
                 </div>
-                <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalConfirmedIncome) }}</h2>
+                <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalConfirmedIncome ?? 0) }}</h2>
                 <div class="small text-white-50">
                     @if($isMember)
                         <i class="bi bi-hammer"></i> Ujenzi wa Hekalu na Miradi
@@ -121,12 +121,12 @@
             <div class="stat-card" style="background: linear-gradient(135deg, #334155 0%, #475569 100%);">
                 <div class="stat-card-icon"><i class="bi bi-wallet2"></i></div>
                 <div class="text-white-50 text-uppercase small fw-bold">Matumizi Yaliyoidhinishwa</div>
-                <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalExpenses) }}</h2>
+                <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalExpenses ?? 0) }}</h2>
                 <div class="small text-white-50">
                     @if($isMember)
-                        Baki la Miradi: <strong class="text-white">Tsh {{ number_format($netBalance) }}</strong>
+                        Baki la Miradi: <strong class="text-white">Tsh {{ number_format($netBalance ?? 0) }}</strong>
                     @else
-                        Salio la Hazina: <strong class="text-white">Tsh {{ number_format($netBalance) }}</strong>
+                        Salio la Hazina: <strong class="text-white">Tsh {{ number_format($netBalance ?? 0) }}</strong>
                     @endif
                 </div>
             </div>
@@ -174,7 +174,7 @@
                     <canvas id="financeChart"></canvas>
                 </div>
                 <div class="mt-3 pt-3 border-top small text-muted text-center">
-                    Jumla Iliyothibitishwa: <strong class="text-dark">Tsh {{ number_format($totalConfirmedIncome) }}</strong>
+                    Jumla Iliyothibitishwa: <strong class="text-dark">Tsh {{ number_format($totalConfirmedIncome ?? 0) }}</strong>
                 </div>
             </div>
         </div>
@@ -194,15 +194,15 @@
                     <div class="mb-3 p-3 bg-light rounded-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="fw-bold text-dark">{{ $project->title }}</span>
-                            <span class="badge bg-primary rounded-pill">{{ $project->progressPercent() }}%</span>
+                            <span class="badge bg-primary rounded-pill">{{ method_exists($project, 'progressPercent') ? $project->progressPercent() : 0 }}%</span>
                         </div>
                         <small class="text-muted d-block mb-2">{{ $project->description }}</small>
                         <div class="progress" style="height: 8px;">
-                            <div class="progress-bar bg-success" style="width: {{ $project->progressPercent() }}%;"></div>
+                            <div class="progress-bar bg-success" style="width: {{ method_exists($project, 'progressPercent') ? $project->progressPercent() : 0 }}%;"></div>
                         </div>
                         <div class="d-flex justify-content-between small text-muted mt-2">
-                            <span>Zilizopatikana: <strong class="text-success">Tsh {{ number_format($project->raised_amount) }}</strong></span>
-                            <span>Lengo: Tsh {{ number_format($project->estimated_cost) }}</span>
+                            <span>Zilizopatikana: <strong class="text-success">Tsh {{ number_format((float) ($project->raised_amount ?? 0)) }}</strong></span>
+                            <span>Lengo: Tsh {{ number_format((float) ($project->estimated_cost ?? 0)) }}</span>
                         </div>
                     </div>
                 @empty
@@ -230,14 +230,20 @@
                 @endforeach
 
                 @foreach($upcomingEvents as $evt)
+                    @php
+                        $evtDate = $evt->start_time;
+                        $monthStr = $evtDate ? (is_string($evtDate) ? date('M', strtotime($evtDate)) : $evtDate->format('M')) : 'Ibada';
+                        $dayStr = $evtDate ? (is_string($evtDate) ? date('d', strtotime($evtDate)) : $evtDate->format('d')) : '--';
+                        $timeStr = $evtDate ? (is_string($evtDate) ? date('H:i', strtotime($evtDate)) : $evtDate->format('H:i')) : 'Muda';
+                    @endphp
                     <div class="d-flex align-items-center gap-3 p-2 border-bottom">
                         <div class="text-center bg-light border rounded-3 p-2" style="min-width: 58px;">
-                            <div class="fw-bold text-primary">{{ $evt->start_time->format('M') }}</div>
-                            <div class="fs-5 fw-bold text-dark">{{ $evt->start_time->format('d') }}</div>
+                            <div class="fw-bold text-primary">{{ $monthStr }}</div>
+                            <div class="fs-5 fw-bold text-dark">{{ $dayStr }}</div>
                         </div>
                         <div>
                             <div class="fw-bold text-dark">{{ $evt->title }}</div>
-                            <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ $evt->start_time->format('H:i') }} • {{ $evt->location ?? 'Hekalu la Golani' }}</small>
+                            <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ $timeStr }} • {{ $evt->location ?? 'Hekalu la Golani' }}</small>
                         </div>
                     </div>
                 @endforeach
@@ -303,9 +309,9 @@
                                 @endphp
                                 <span class="badge bg-light text-dark border">{{ $catNames[$txn->category] ?? $txn->category }}</span>
                             </td>
-                            <td class="fw-bold text-success">Tsh {{ number_format($txn->amount) }}</td>
-                            <td><i class="bi bi-wallet2 me-1"></i> {{ ucwords($txn->payment_method) }}</td>
-                            <td>{{ $txn->transaction_date->format('d M, Y') }}</td>
+                            <td class="fw-bold text-success">Tsh {{ number_format((float) ($txn->amount ?? 0)) }}</td>
+                            <td><i class="bi bi-wallet2 me-1"></i> {{ ucwords($txn->payment_method ?? 'Cash') }}</td>
+                            <td>{{ $txn->transaction_date ? (is_string($txn->transaction_date) ? date('d M, Y', strtotime($txn->transaction_date)) : $txn->transaction_date->format('d M, Y')) : '-' }}</td>
                             <td>
                                 @if($txn->isConfirmed())
                                     <span class="badge bg-success rounded-pill px-3 py-1"><i class="bi bi-check-circle me-1"></i> Imethibitishwa</span>

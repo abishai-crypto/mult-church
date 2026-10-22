@@ -83,7 +83,7 @@
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center gap-3">
-                                    <div class="rounded-3 d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" style="width: 40px; height: 40px; background: {{ $church->primary_color }};">
+                                    <div class="rounded-3 d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" style="width: 40px; height: 40px; background: {{ $church->primary_color ?? '#1e3a8a' }};">
                                         {{ substr($church->name, 0, 2) }}
                                     </div>
                                     <div>
@@ -105,8 +105,8 @@
                             </td>
                             <td>
                                 <div class="d-flex align-items-center gap-1">
-                                    <span class="d-inline-block rounded-circle" style="width: 18px; height: 18px; background: {{ $church->primary_color }};" title="Rangi Kuu"></span>
-                                    <span class="d-inline-block rounded-circle" style="width: 18px; height: 18px; background: {{ $church->secondary_color }};" title="Rangi ya Pili"></span>
+                                    <span class="d-inline-block rounded-circle" style="width: 18px; height: 18px; background: {{ $church->primary_color ?? '#1e3a8a' }};" title="Rangi Kuu"></span>
+                                    <span class="d-inline-block rounded-circle" style="width: 18px; height: 18px; background: {{ $church->secondary_color ?? '#d97706' }};" title="Rangi ya Pili"></span>
                                 </div>
                             </td>
                             <td>
@@ -144,7 +144,7 @@
                 <tbody>
                     @foreach($recentAuditLogs as $log)
                         <tr>
-                            <td class="small text-muted">{{ $log->created_at->format('d/m, H:i') }}</td>
+                            <td class="small text-muted">{{ $log->created_at ? $log->created_at->format('d/m, H:i') : '-' }}</td>
                             <td class="fw-semibold text-dark">{{ $log->user_name }}</td>
                             <td>
                                 <span class="badge bg-light text-dark border text-uppercase" style="font-size: 0.72rem;">{{ $log->action }}</span>

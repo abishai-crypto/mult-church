@@ -28,16 +28,23 @@ class IdentifyTenant
                 if ($activeId) {
                     $currentChurch = Church::find($activeId);
                 }
-            } elseif ($user->church_id) {
-                session(['active_church_id' => $user->church_id]);
-                $currentChurch = Church::find($user->church_id);
+            } else {
+                $churchId = session('active_church_id') ?? $user->church_id;
+                $currentChurch = $churchId ? Church::find($churchId) : null;
+                if (!$currentChurch) {
+                    $currentChurch = Church::where('slug', 'eagt-golani')->first() ?? Church::first();
+                }
 
-                // If tenant is deactivated or expired
-                if ($currentChurch && !$currentChurch->is_active && !$request->is('logout*')) {
-                    Auth::logout();
-                    $request->session()->invalidate();
-                    $request->session()->regenerateToken();
-                    return redirect()->route('login')->withErrors(['email' => 'This church tenant account is currently deactivated. Please contact support.']);
+                if ($currentChurch) {
+                    session(['active_church_id' => $currentChurch->id]);
+
+                    // If tenant is deactivated or expired
+                    if (!$currentChurch->is_active && !$request->is('logout*')) {
+                        Auth::logout();
+                        $request->session()->invalidate();
+                        $request->session()->regenerateToken();
+                        return redirect()->route('login')->withErrors(['login' => 'Akaunti ya hili tawi la kanisa imesimamishwa. Tafadhali wasiliana na uongozi.']);
+                    }
                 }
             }
         }
