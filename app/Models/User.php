@@ -75,6 +75,11 @@ class User extends Authenticatable
         return $this->role === 'member';
     }
 
+    public function canViewTithesAndOfferings(): bool
+    {
+        return in_array($this->role, ['super_admin', 'church_admin', 'pastor', 'elder']);
+    }
+
     // Relationships
     public function church()
     {

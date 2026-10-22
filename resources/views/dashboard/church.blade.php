@@ -16,7 +16,11 @@
             </div>
         </div>
         <div class="d-flex align-items-center gap-2">
-            @if(Auth::user()->isTreasurer() || Auth::user()->isSecretary() || Auth::user()->isChurchAdmin())
+            @if(Auth::user()->isMember())
+                <a href="{{ route('finances.create') }}" class="btn btn-warning btn-sm fw-bold rounded-pill px-3 shadow-sm text-dark">
+                    <i class="bi bi-hammer me-1"></i> Toa Mchango wa Ujenzi
+                </a>
+            @elseif(Auth::user()->isTreasurer() || Auth::user()->isSecretary() || Auth::user()->isChurchAdmin())
                 <a href="{{ route('finances.create') }}" class="btn btn-warning btn-sm fw-bold rounded-pill px-3 shadow-sm text-dark">
                     <i class="bi bi-plus-circle me-1"></i> Rekodi Sadaka / Mchango
                 </a>
@@ -92,7 +96,9 @@
             <div class="stat-card" style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);">
                 <div class="stat-card-icon"><i class="bi bi-cash-stack"></i></div>
                 <div class="text-white-50 text-uppercase small fw-bold">
-                    @if($isTreasurer)
+                    @if($isMember)
+                        Michango ya Ujenzi & Miradi
+                    @elseif($isTreasurer)
                         Sadaka na Michango
                     @else
                         Hazina Iliyothibitishwa
@@ -100,7 +106,9 @@
                 </div>
                 <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalConfirmedIncome) }}</h2>
                 <div class="small text-white-50">
-                    @if($isTreasurer)
+                    @if($isMember)
+                        <i class="bi bi-hammer"></i> Ujenzi wa Hekalu na Miradi
+                    @elseif($isTreasurer)
                         <i class="bi bi-info-circle"></i> Bila Zaka (Inaenda kwa Mchungaji)
                     @else
                         <i class="bi bi-shield-check"></i> Imethibitishwa na Wazee/Mchungaji
@@ -114,7 +122,13 @@
                 <div class="stat-card-icon"><i class="bi bi-wallet2"></i></div>
                 <div class="text-white-50 text-uppercase small fw-bold">Matumizi Yaliyoidhinishwa</div>
                 <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalExpenses) }}</h2>
-                <div class="small text-white-50">Salio la Hazina: <strong class="text-white">Tsh {{ number_format($netBalance) }}</strong></div>
+                <div class="small text-white-50">
+                    @if($isMember)
+                        Baki la Miradi: <strong class="text-white">Tsh {{ number_format($netBalance) }}</strong>
+                    @else
+                        Salio la Hazina: <strong class="text-white">Tsh {{ number_format($netBalance) }}</strong>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
@@ -141,8 +155,20 @@
         <div class="col-lg-4">
             <div class="card-custom p-4 h-100">
                 <div class="mb-3">
-                    <h5 class="fw-bold mb-0">Mgawanyo wa Mapato</h5>
-                    <small class="text-muted">Mchanganuo wa vyanzo vya fedha vilivyothibitishwa</small>
+                    <h5 class="fw-bold mb-0">
+                        @if($isMember)
+                            Mgawanyo wa Michango ya Miradi
+                        @else
+                            Mgawanyo wa Mapato
+                        @endif
+                    </h5>
+                    <small class="text-muted">
+                        @if($isMember)
+                            Mchanganuo wa michango ya ujenzi na maendeleo
+                        @else
+                            Mchanganuo wa vyanzo vya fedha vilivyothibitishwa
+                        @endif
+                    </small>
                 </div>
                 <div style="height: 250px;" class="position-relative">
                     <canvas id="financeChart"></canvas>
@@ -223,10 +249,28 @@
     <div class="card-custom p-4">
         <div class="d-flex align-items-center justify-content-between mb-3">
             <div>
-                <h5 class="fw-bold mb-0">Miamala ya Hivi Karibuni ya Sadaka na Michango</h5>
-                <small class="text-muted">Kumbukumbu za mapato yaliyowasilishwa kanisani</small>
+                <h5 class="fw-bold mb-0">
+                    @if($isMember)
+                        Michango ya Hivi Karibuni ya Ujenzi & Miradi
+                    @else
+                        Miamala ya Hivi Karibuni ya Sadaka na Michango
+                    @endif
+                </h5>
+                <small class="text-muted">
+                    @if($isMember)
+                        Kumbukumbu zilizothibitishwa za michango ya ujenzi na maendeleo
+                    @else
+                        Kumbukumbu za mapato yaliyowasilishwa kanisani
+                    @endif
+                </small>
             </div>
-            <a href="{{ route('finances.index') }}" class="btn btn-sm btn-primary-custom">Fungua Leja ya Fedha</a>
+            <a href="{{ route('finances.index') }}" class="btn btn-sm btn-primary-custom">
+                @if($isMember)
+                    Fungua Orodha ya Michango
+                @else
+                    Fungua Leja ya Fedha
+                @endif
+            </a>
         </div>
         <div class="table-responsive">
             <table class="table table-hover table-custom mb-0">
@@ -234,7 +278,7 @@
                     <tr>
                         <th>Nambari ya Muamala</th>
                         <th>Muumini / Mchangiaji</th>
-                        <th>Aina ya Sadaka</th>
+                        <th>{{ $isMember ? 'Aina ya Mchango' : 'Aina ya Sadaka' }}</th>
                         <th>Kiasi</th>
                         <th>Njia ya Malipo</th>
                         <th>Tarehe</th>

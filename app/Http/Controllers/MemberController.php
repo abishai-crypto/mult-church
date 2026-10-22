@@ -110,16 +110,33 @@ class MemberController extends Controller
 
     public function show(Member $member)
     {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $isMember = $user ? $user->isMember() : false;
+        $isTreasurer = $user ? $user->isTreasurer() : false;
+
         $member->load([
             'departments',
-            'financialTransactions' => fn($q) => $q->latest()->take(10),
+            'financialTransactions' => function ($q) use ($isMember, $isTreasurer) {
+                if ($isMember) {
+                    $q->whereIn('category', ['building_offering', 'special_contribution', 'other_income']);
+                } elseif ($isTreasurer) {
+                    $q->where('category', '!=', 'tithe');
+                }
+                $q->latest()->take(10);
+            },
             'pastoralVisits' => fn($q) => $q->with('pastor')->latest('visit_date'),
             'prayerRequests' => fn($q) => $q->latest(),
         ]);
 
-        $totalGiving = $member->financialTransactions()->where('status', 'confirmed')->sum('amount');
+        $givingQuery = $member->financialTransactions()->where('status', 'confirmed');
+        if ($isMember) {
+            $givingQuery->whereIn('category', ['building_offering', 'special_contribution', 'other_income']);
+        } elseif ($isTreasurer) {
+            $givingQuery->where('category', '!=', 'tithe');
+        }
+        $totalGiving = $givingQuery->sum('amount');
 
-        return view('members.show', compact('member', 'totalGiving'));
+        return view('members.show', compact('member', 'totalGiving', 'isMember'));
     }
 
     public function edit(Member $member)

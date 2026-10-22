@@ -6,8 +6,13 @@
 <div class="container-fluid px-0">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div>
-            <h3 class="fw-bold mb-1">Hazina na Uthibitisho wa Pamoja wa Mapato (Dual-Control)</h3>
-            <p class="text-muted mb-0 small">Usimamizi wa Zaka, Sadaka za Jumapili, Shukrani, Ujenzi na Uthibitisho wa Wazee wa Kanisa</p>
+            @if($isMember)
+                <h3 class="fw-bold mb-1">Michango ya Ujenzi na Makusanyo ya Miradi</h3>
+                <p class="text-muted mb-0 small">Ripoti rasmi ya michango ya ujenzi wa hekalu, miradi ya kanisa na matumizi yaliyoidhinishwa</p>
+            @else
+                <h3 class="fw-bold mb-1">Hazina na Uthibitisho wa Pamoja wa Mapato (Dual-Control)</h3>
+                <p class="text-muted mb-0 small">Usimamizi wa Zaka, Sadaka za Jumapili, Shukrani, Ujenzi na Uthibitisho wa Wazee wa Kanisa</p>
+            @endif
         </div>
         <div class="d-flex flex-wrap gap-2">
             <a href="{{ route('finances.statement.print') }}" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill px-3">
@@ -19,14 +24,33 @@
             <a href="{{ route('finances.expenses') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
                 <i class="bi bi-receipt me-1"></i> Matumizi
             </a>
-            <a href="{{ route('finances.create') }}" class="btn btn-warning btn-sm fw-bold rounded-pill px-3 shadow-sm text-dark">
-                <i class="bi bi-plus-circle me-1"></i> Rekodi Sadaka / Zaka
-            </a>
+            @if($isMember)
+                <a href="{{ route('finances.create') }}" class="btn btn-warning btn-sm fw-bold rounded-pill px-3 shadow-sm text-dark">
+                    <i class="bi bi-plus-circle me-1"></i> Toa Mchango wa Ujenzi / Mradi
+                </a>
+            @else
+                <a href="{{ route('finances.create') }}" class="btn btn-warning btn-sm fw-bold rounded-pill px-3 shadow-sm text-dark">
+                    <i class="bi bi-plus-circle me-1"></i> Rekodi Sadaka / Zaka
+                </a>
+            @endif
         </div>
     </div>
 
-    <!-- Ilani Maalum kwa Mhazini Kuhusu Zaka -->
-    @if($isTreasurer)
+    <!-- Mwongozo wa Faragha kwa Washirika Kuhusu Sadaka na Zaka -->
+    @if($isMember)
+        <div class="alert alert-light border border-primary-subtle shadow-sm rounded-4 p-3 mb-4 d-flex align-items-center gap-3">
+            <div class="bg-primary text-white p-2 rounded-circle fs-4">
+                <i class="bi bi-shield-lock-fill"></i>
+            </div>
+            <div>
+                <h6 class="fw-bold mb-1 text-dark">Mwongozo wa Sadaka na Zaka kwa Washirika:</h6>
+                <small class="text-dark-emphasis d-block">
+                    Kwa mujibu wa taratibu za kanisa, Zaka na Sadaka za ibada zinapokelewa na kusimamiwa na Wazee wa Kanisa na Mchungaji Kiongozi pekee. Washirika wanashiriki na kuona taarifa za Michango ya Ujenzi, Miradi ya Maendeleo na Matumizi yake kwa uwazi kamili.
+                </small>
+            </div>
+        </div>
+    @elseif($isTreasurer)
+        <!-- Ilani Maalum kwa Mhazini Kuhusu Zaka -->
         <div class="alert alert-info border-0 shadow-sm rounded-4 p-3 mb-4 d-flex align-items-center gap-3">
             <div class="bg-primary text-white p-2 rounded-circle fs-4">
                 <i class="bi bi-shield-lock-fill"></i>
@@ -40,182 +64,277 @@
         </div>
     @endif
 
-    <!-- Kadi 4 za Hazina -->
-    <div class="row g-3 mb-4">
-        <div class="col-sm-6 col-xl-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
-                <div class="stat-card-icon"><i class="bi bi-check-circle-fill"></i></div>
-                <div class="text-white-50 text-uppercase small fw-bold">
-                    {{ $isTreasurer ? 'Sadaka & Michango Iliyothibitishwa' : 'Hazina Iliyothibitishwa (Jumla)' }}
+    <!-- Kadi za Hazina na Michango -->
+    @if($isMember)
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+                    <div class="stat-card-icon"><i class="bi bi-check-circle-fill"></i></div>
+                    <div class="text-white-50 text-uppercase small fw-bold">Mfuko wa Ujenzi (Iliyothibitishwa)</div>
+                    <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalBuilding) }}</h2>
+                    <div class="small text-white-50"><i class="bi bi-hammer"></i> Hekalu Jipya Golani</div>
                 </div>
-                <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalConfirmed) }}</h2>
-                <div class="small text-white-50"><i class="bi bi-shield-check"></i> Ipo kwenye leja rasmi</div>
             </div>
-        </div>
 
-        <div class="col-sm-6 col-xl-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);">
-                <div class="stat-card-icon"><i class="bi bi-hourglass-split"></i></div>
-                <div class="text-white-50 text-uppercase small fw-bold">Zinazosubiri Wazee</div>
-                <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalPending) }}</h2>
-                <div class="small text-white-50">Miamala {{ $pendingTransactions->count() }} inangoja uthibitisho</div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
+                    <div class="stat-card-icon"><i class="bi bi-wallet2"></i></div>
+                    <div class="text-white-50 text-uppercase small fw-bold">Jumla ya Michango ya Miradi</div>
+                    <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalConfirmed) }}</h2>
+                    <div class="small text-white-50">Ujenzi na Maendeleo</div>
+                </div>
             </div>
-        </div>
 
-        @if(!$isTreasurer)
-        <div class="col-sm-6 col-xl-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
-                <div class="stat-card-icon"><i class="bi bi-wallet2"></i></div>
-                <div class="text-white-50 text-uppercase small fw-bold">Zaka Zilizothibitishwa</div>
-                <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalTithes) }}</h2>
-                <div class="small text-white-50"><i class="bi bi-person-heart"></i> Zimekabidhiwa kwa Mchungaji</div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #334155 0%, #475569 100%);">
+                    <div class="stat-card-icon"><i class="bi bi-receipt-cutoff"></i></div>
+                    <div class="text-white-50 text-uppercase small fw-bold">Matumizi Yaliyoidhinishwa</div>
+                    <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalExpenses) }}</h2>
+                    <div class="small text-white-50">Utekelezaji wa miradi & huduma</div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);">
+                    <div class="stat-card-icon"><i class="bi bi-cash-coin"></i></div>
+                    <div class="text-white-50 text-uppercase small fw-bold">Baki la Mfuko wa Miradi</div>
+                    <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalConfirmed - $totalExpenses) }}</h2>
+                    <div class="small text-white-50"><i class="bi bi-shield-check"></i> Salio la ujenzi</div>
+                </div>
             </div>
         </div>
-        @else
-        <div class="col-sm-6 col-xl-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
-                <div class="stat-card-icon"><i class="bi bi-hammer"></i></div>
-                <div class="text-white-50 text-uppercase small fw-bold">Mfuko wa Ujenzi</div>
-                <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalBuilding) }}</h2>
-                <div class="small text-white-50">Hekalu Jipya Golani</div>
+    @else
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+                    <div class="stat-card-icon"><i class="bi bi-check-circle-fill"></i></div>
+                    <div class="text-white-50 text-uppercase small fw-bold">
+                        {{ $isTreasurer ? 'Sadaka & Michango Iliyothibitishwa' : 'Hazina Iliyothibitishwa (Jumla)' }}
+                    </div>
+                    <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalConfirmed) }}</h2>
+                    <div class="small text-white-50"><i class="bi bi-shield-check"></i> Ipo kwenye leja rasmi</div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);">
+                    <div class="stat-card-icon"><i class="bi bi-hourglass-split"></i></div>
+                    <div class="text-white-50 text-uppercase small fw-bold">Zinazosubiri Wazee</div>
+                    <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalPending) }}</h2>
+                    <div class="small text-white-50">Miamala {{ $pendingTransactions->count() }} inangoja uthibitisho</div>
+                </div>
+            </div>
+
+            @if(!$isTreasurer)
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
+                    <div class="stat-card-icon"><i class="bi bi-wallet2"></i></div>
+                    <div class="text-white-50 text-uppercase small fw-bold">Zaka Zilizothibitishwa</div>
+                    <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalTithes) }}</h2>
+                    <div class="small text-white-50"><i class="bi bi-person-heart"></i> Zimekabidhiwa kwa Mchungaji</div>
+                </div>
+            </div>
+            @else
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
+                    <div class="stat-card-icon"><i class="bi bi-hammer"></i></div>
+                    <div class="text-white-50 text-uppercase small fw-bold">Mfuko wa Ujenzi</div>
+                    <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalBuilding) }}</h2>
+                    <div class="small text-white-50">Hekalu Jipya Golani</div>
+                </div>
+            </div>
+            @endif
+
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #334155 0%, #475569 100%);">
+                    <div class="stat-card-icon"><i class="bi bi-receipt-cutoff"></i></div>
+                    <div class="text-white-50 text-uppercase small fw-bold">Matumizi ya Kanisa</div>
+                    <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalExpenses) }}</h2>
+                    <div class="small text-white-50">Yaliyoidhinishwa na uongozi</div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- SEHEMU YA MIAMALA INAYOSUBIRI UTHIBITISHO -->
+    @if($isMember)
+        @if($pendingTransactions->count() > 0)
+        <div class="card-custom p-4 mb-4 border-warning border-2">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="bg-warning text-dark p-2 rounded-circle fs-5">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-0 text-dark">Michango Yako ya Ujenzi Inayosubiri Uthibitisho wa Wazee ({{ $pendingTransactions->count() }})</h5>
+                    <small class="text-muted">Mchango uliowasilisha unakaguliwa na Wazee wa Kanisa kabla ya kuingizwa rasmi kwenye leja.</small>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-custom mb-0 align-middle">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Nambari</th>
+                            <th>Aina ya Mchango</th>
+                            <th>Kiasi</th>
+                            <th>Njia ya Malipo</th>
+                            <th>Tarehe</th>
+                            <th>Hadhi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($pendingTransactions as $pending)
+                            <tr>
+                                <td><code class="text-dark fw-bold">{{ $pending->transaction_code }}</code></td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">{{ ucwords(str_replace('_', ' ', $pending->category)) }}</span>
+                                </td>
+                                <td class="fs-6 fw-bold text-success">Tsh {{ number_format($pending->amount) }}</td>
+                                <td><small>{{ ucwords($pending->payment_method) }}</small></td>
+                                <td><small>{{ $pending->transaction_date->format('d M, Y') }}</small></td>
+                                <td>
+                                    <span class="badge bg-warning text-dark"><i class="bi bi-clock me-1"></i> Inasubiri Wazee</span>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
         @endif
-
-        <div class="col-sm-6 col-xl-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #334155 0%, #475569 100%);">
-                <div class="stat-card-icon"><i class="bi bi-receipt-cutoff"></i></div>
-                <div class="text-white-50 text-uppercase small fw-bold">Matumizi ya Kanisa</div>
-                <h2 class="fw-bold my-2 text-white">Tsh {{ number_format($totalExpenses) }}</h2>
-                <div class="small text-white-50">Yaliyoidhinishwa na uongozi</div>
+    @else
+        <div class="card-custom p-4 mb-4 border-warning border-2">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                <div>
+                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-1">
+                        <i class="bi bi-shield-lock-fill me-1"></i> Hatua ya Uthibitisho wa Pamoja (Dual-Control)
+                    </span>
+                    <h5 class="fw-bold mb-0 text-dark">Mapato Yanayosubiri Uthibitisho wa Wazee wa Kanisa / Mchungaji ({{ $pendingTransactions->count() }})</h5>
+                    <small class="text-muted">Miamala iliyoingizwa na watunza hazina/makatibu. Lazima Mzee wa Kanisa au Mchungaji athibitishe.</small>
+                </div>
+                @if(Auth::user()->isPastor() || Auth::user()->isElder())
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold">
+                        <i class="bi bi-person-check-fill me-1"></i> Una mamlaka ya Kuthibitisha
+                    </span>
+                @endif
             </div>
-        </div>
-    </div>
 
-    <!-- SEHEMU YA MIAMALA INAYOSUBIRI UTHIBITISHO (Dual-Control Holding Stage) -->
-    <div class="card-custom p-4 mb-4 border-warning border-2">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
-            <div>
-                <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-1">
-                    <i class="bi bi-shield-lock-fill me-1"></i> Hatua ya Uthibitisho wa Pamoja (Dual-Control)
-                </span>
-                <h5 class="fw-bold mb-0 text-dark">Mapato Yanayosubiri Uthibitisho wa Wazee wa Kanisa / Mchungaji ({{ $pendingTransactions->count() }})</h5>
-                <small class="text-muted">Miamala iliyoingizwa na watunza hazina/makatibu. Lazima Mzee wa Kanisa au Mchungaji athibitishe.</small>
-            </div>
-            @if(Auth::user()->isPastor() || Auth::user()->isElder())
-                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold">
-                    <i class="bi bi-person-check-fill me-1"></i> Una mamlaka ya Kuthibitisha
-                </span>
-            @endif
-        </div>
-
-        <div class="table-responsive">
-            <table class="table table-hover table-custom mb-0 align-middle">
-                <thead class="bg-light">
-                    <tr>
-                        <th>Nambari</th>
-                        <th>Aliyerekodi</th>
-                        <th>Muumini / Mtoaji</th>
-                        <th>Aina ya Sadaka</th>
-                        <th>Kiasi</th>
-                        <th>Njia ya Malipo</th>
-                        <th>Tarehe</th>
-                        <th class="text-end">Hatua ya Uthibitisho</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($pendingTransactions as $pending)
+            <div class="table-responsive">
+                <table class="table table-hover table-custom mb-0 align-middle">
+                    <thead class="bg-light">
                         <tr>
-                            <td><code class="text-dark fw-bold">{{ $pending->transaction_code }}</code></td>
-                            <td><small class="text-muted">{{ $pending->enteredBy?->name ?? 'Mtendaji' }}</small></td>
-                            <td>
-                                @if($pending->member)
-                                    <a href="{{ route('members.show', $pending->member) }}" class="fw-bold text-dark text-decoration-none">
-                                        {{ $pending->member->full_name }}
-                                    </a>
-                                @else
-                                    <span class="text-dark">{{ $pending->donor_name ?? 'Muumini wa Kawaida' }}</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($pending->category === 'tithe')
-                                    <span class="badge bg-primary text-white">Zaka (Fungu la Kumi)</span>
-                                @else
-                                    <span class="badge bg-light text-dark border">{{ ucwords(str_replace('_', ' ', $pending->category)) }}</span>
-                                @endif
-                            </td>
-                            <td class="fs-6 fw-bold text-success">Tsh {{ number_format($pending->amount) }}</td>
-                            <td><small>{{ ucwords($pending->payment_method) }}</small></td>
-                            <td><small>{{ $pending->transaction_date->format('d M, Y') }}</small></td>
-                            <td class="text-end">
-                                <div class="d-inline-flex gap-2">
-                                    @if(Auth::user()->isPastor() || Auth::user()->isElder() || Auth::user()->isSuperAdmin())
-                                        <form action="{{ route('finances.confirm', $pending) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-success btn-sm rounded-pill px-3 shadow-sm" onclick="return confirm('Je, unathibitisha muamala huu?');">
-                                                <i class="bi bi-check2-circle me-1"></i> 
-                                                @if($pending->category === 'tithe')
-                                                    Thibitisha (Moja kwa moja kwa Mchungaji)
-                                                @else
-                                                    Thibitisha & Ingiza Leja
-                                                @endif
-                                            </button>
-                                        </form>
+                            <th>Nambari</th>
+                            <th>Aliyerekodi</th>
+                            <th>Muumini / Mtoaji</th>
+                            <th>Aina ya Sadaka</th>
+                            <th>Kiasi</th>
+                            <th>Njia ya Malipo</th>
+                            <th>Tarehe</th>
+                            <th class="text-end">Hatua ya Uthibitisho</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($pendingTransactions as $pending)
+                            <tr>
+                                <td><code class="text-dark fw-bold">{{ $pending->transaction_code }}</code></td>
+                                <td><small class="text-muted">{{ $pending->enteredBy?->name ?? 'Mtendaji' }}</small></td>
+                                <td>
+                                    @if($pending->member)
+                                        <a href="{{ route('members.show', $pending->member) }}" class="fw-bold text-dark text-decoration-none">
+                                            {{ $pending->member->full_name }}
+                                        </a>
+                                    @else
+                                        <span class="text-dark">{{ $pending->donor_name ?? 'Muumini wa Kawaida' }}</span>
                                     @endif
+                                </td>
+                                <td>
+                                    @if($pending->category === 'tithe')
+                                        <span class="badge bg-primary text-white">Zaka (Fungu la Kumi)</span>
+                                    @else
+                                        <span class="badge bg-light text-dark border">{{ ucwords(str_replace('_', ' ', $pending->category)) }}</span>
+                                    @endif
+                                </td>
+                                <td class="fs-6 fw-bold text-success">Tsh {{ number_format($pending->amount) }}</td>
+                                <td><small>{{ ucwords($pending->payment_method) }}</small></td>
+                                <td><small>{{ $pending->transaction_date->format('d M, Y') }}</small></td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-2">
+                                        @if(Auth::user()->isPastor() || Auth::user()->isElder() || Auth::user()->isSuperAdmin())
+                                            <form action="{{ route('finances.confirm', $pending) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-success btn-sm rounded-pill px-3 shadow-sm" onclick="return confirm('Je, unathibitisha muamala huu?');">
+                                                    <i class="bi bi-check2-circle me-1"></i> 
+                                                    @if($pending->category === 'tithe')
+                                                        Thibitisha (Moja kwa moja kwa Mchungaji)
+                                                    @else
+                                                        Thibitisha & Ingiza Leja
+                                                    @endif
+                                                </button>
+                                            </form>
+                                        @endif
 
-                                    @if(Auth::user()->isPastor() || Auth::user()->isElder() || Auth::user()->isChurchAdmin() || Auth::user()->isSuperAdmin())
-                                        <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-2" data-bs-toggle="modal" data-bs-target="#reverseModal_{{ $pending->id }}">
-                                            <i class="bi bi-x-circle"></i> Futa
-                                        </button>
+                                        @if(Auth::user()->isPastor() || Auth::user()->isElder() || Auth::user()->isChurchAdmin() || Auth::user()->isSuperAdmin())
+                                            <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-2" data-bs-toggle="modal" data-bs-target="#reverseModal_{{ $pending->id }}">
+                                                <i class="bi bi-x-circle"></i> Futa
+                                            </button>
 
-                                        <!-- Modal ya Kufuta Muamala -->
-                                        <div class="modal fade" id="reverseModal_{{ $pending->id }}" tabindex="-1">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content text-start">
-                                                    <form action="{{ route('finances.reverse', $pending) }}" method="POST">
-                                                        @csrf
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title fw-bold">Futa Muamala {{ $pending->transaction_code }}</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="mb-3">
-                                                                <label class="form-label small fw-semibold">Sababu ya Kufuta Muamala *</label>
-                                                                <textarea name="reversal_reason" class="form-control" rows="3" placeholder="Eleza sababu ya kufuta muamala huu (mfano: namba isiyo sahihi au muamala uliorudiwa)..." required></textarea>
+                                            <!-- Modal ya Kufuta Muamala -->
+                                            <div class="modal fade" id="reverseModal_{{ $pending->id }}" tabindex="-1">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content text-start">
+                                                        <form action="{{ route('finances.reverse', $pending) }}" method="POST">
+                                                            @csrf
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title fw-bold">Futa Muamala {{ $pending->transaction_code }}</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                             </div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Ghairi</button>
-                                                            <button type="submit" class="btn btn-danger">Thibitisha Kufuta</button>
-                                                        </div>
-                                                    </form>
+                                                            <div class="modal-body">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label small fw-semibold">Sababu ya Kufuta Muamala *</label>
+                                                                    <textarea name="reversal_reason" class="form-control" rows="3" placeholder="Eleza sababu ya kufuta muamala huu (mfano: namba isiyo sahihi au muamala uliorudiwa)..." required></textarea>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Ghairi</button>
+                                                                <button type="submit" class="btn btn-danger">Thibitisha Kufuta</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8" class="text-center py-4 text-muted">
-                                <i class="bi bi-check2-all text-success fs-3 d-block mb-1"></i>
-                                Hakuna miamala inayosubiri uthibitisho. Miamala yote imeshathibitishwa na Wazee/Mchungaji!
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-muted">
+                                    <i class="bi bi-check2-all text-success fs-3 d-block mb-1"></i>
+                                    Hakuna miamala inayosubiri uthibitisho. Miamala yote imeshathibitishwa na Wazee/Mchungaji!
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+    @endif
 
     <!-- SEHEMU YA LEJA KUU ILIYOTHIBITISHWA -->
     <div class="card-custom p-4">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
             <div>
-                <h5 class="fw-bold mb-0">Leja Rasmi ya Mapato Yaliyothibitishwa</h5>
+                <h5 class="fw-bold mb-0">
+                    @if($isMember)
+                        Leja ya Michango ya Ujenzi na Makusanyo ya Miradi
+                    @else
+                        Leja Rasmi ya Mapato Yaliyothibitishwa
+                    @endif
+                </h5>
                 <small class="text-muted">
-                    @if($isTreasurer)
+                    @if($isMember)
+                        Kumbukumbu zilizothibitishwa za michango ya ujenzi na miradi ya maendeleo ya kanisa.
+                    @elseif($isTreasurer)
                         Inaonyesha Sadaka za kawaida, Shukrani na Michango ya Ujenzi (Zaka hazionekani kwa Mhazini).
                     @else
                         Kumbukumbu rasmi za Zaka (kwa Mchungaji) na Sadaka za kanisa zilizothibitishwa.
@@ -229,13 +348,19 @@
             <div class="col-md-3">
                 <select name="category" class="form-select form-select-sm">
                     <option value="">Aina Zote za Mapato</option>
-                    @if(!$isTreasurer)
-                        <option value="tithe" {{ request('category') == 'tithe' ? 'selected' : '' }}>Zaka (Fungu la Kumi)</option>
+                    @if($isMember)
+                        <option value="building_offering" {{ request('category') == 'building_offering' ? 'selected' : '' }}>Mchango wa Ujenzi</option>
+                        <option value="special_contribution" {{ request('category') == 'special_contribution' ? 'selected' : '' }}>Mchango Maalum wa Miradi</option>
+                        <option value="other_income" {{ request('category') == 'other_income' ? 'selected' : '' }}>Makusanyo Mengine</option>
+                    @else
+                        @if(!$isTreasurer)
+                            <option value="tithe" {{ request('category') == 'tithe' ? 'selected' : '' }}>Zaka (Fungu la Kumi)</option>
+                        @endif
+                        <option value="regular_offering" {{ request('category') == 'regular_offering' ? 'selected' : '' }}>Sadaka ya Jumapili</option>
+                        <option value="thanksgiving" {{ request('category') == 'thanksgiving' ? 'selected' : '' }}>Sadaka ya Shukrani</option>
+                        <option value="building_offering" {{ request('category') == 'building_offering' ? 'selected' : '' }}>Mchango wa Ujenzi</option>
+                        <option value="special_contribution" {{ request('category') == 'special_contribution' ? 'selected' : '' }}>Mchango Maalum</option>
                     @endif
-                    <option value="regular_offering" {{ request('category') == 'regular_offering' ? 'selected' : '' }}>Sadaka ya Jumapili</option>
-                    <option value="thanksgiving" {{ request('category') == 'thanksgiving' ? 'selected' : '' }}>Sadaka ya Shukrani</option>
-                    <option value="building_offering" {{ request('category') == 'building_offering' ? 'selected' : '' }}>Mchango wa Ujenzi</option>
-                    <option value="special_contribution" {{ request('category') == 'special_contribution' ? 'selected' : '' }}>Mchango Maalum</option>
                 </select>
             </div>
             <div class="col-md-3">

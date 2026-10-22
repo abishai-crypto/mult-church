@@ -6,8 +6,13 @@
 <div class="container-fluid px-0">
     <div class="d-flex align-items-center justify-content-between mb-4">
         <div>
-            <h3 class="fw-bold mb-1">Kurekodi Mapato ya Kanisa (Sadaka / Zaka)</h3>
-            <p class="text-muted mb-0 small">Kila muamala unaoingizwa huingia kwenye hatua ya uthibitisho wa Wazee wa Kanisa / Mchungaji</p>
+            @if($isMember)
+                <h3 class="fw-bold mb-1">Kuwasilisha Mchango wa Ujenzi au Mradi</h3>
+                <p class="text-muted mb-0 small">Mchango wako utahifadhiwa na kuthibitishwa na Wazee wa Kanisa kwa ujenzi wa hekalu na maendeleo</p>
+            @else
+                <h3 class="fw-bold mb-1">Kurekodi Mapato ya Kanisa (Sadaka / Zaka)</h3>
+                <p class="text-muted mb-0 small">Kila muamala unaoingizwa huingia kwenye hatua ya uthibitisho wa Wazee wa Kanisa / Mchungaji</p>
+            @endif
         </div>
         <a href="{{ route('finances.index') }}" class="btn btn-sm btn-light border rounded-pill">
             <i class="bi bi-arrow-left me-1"></i> Rudi Kwenye Leja
@@ -20,14 +25,22 @@
 
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label class="form-label small fw-semibold">Aina ya Sadaka / Mchango *</label>
+                    <label class="form-label small fw-semibold">
+                        {{ $isMember ? 'Aina ya Mchango wa Mradi *' : 'Aina ya Sadaka / Mchango *' }}
+                    </label>
                     <select name="category" class="form-select" id="categorySelect" required>
-                        <option value="regular_offering" selected>Sadaka Kuu ya Jumapili</option>
-                        <option value="tithe">Zaka (Fungu la Kumi - 10%)</option>
-                        <option value="thanksgiving">Sadaka ya Shukrani / Ushuhuda</option>
-                        <option value="building_offering">Mchango wa Ujenzi wa Hekalu Golani</option>
-                        <option value="special_contribution">Mchango Maalum wa Uinjilisti</option>
-                        <option value="other_income">Mapato Mengineyo</option>
+                        @if($isMember)
+                            <option value="building_offering" selected>Mchango wa Ujenzi wa Hekalu Golani</option>
+                            <option value="special_contribution">Mchango Maalum wa Miradi / Maendeleo</option>
+                            <option value="other_income">Makusanyo Mengineyo ya Miradi</option>
+                        @else
+                            <option value="regular_offering" selected>Sadaka Kuu ya Jumapili</option>
+                            <option value="tithe">Zaka (Fungu la Kumi - 10%)</option>
+                            <option value="thanksgiving">Sadaka ya Shukrani / Ushuhuda</option>
+                            <option value="building_offering">Mchango wa Ujenzi wa Hekalu Golani</option>
+                            <option value="special_contribution">Mchango Maalum wa Uinjilisti</option>
+                            <option value="other_income">Mapato Mengineyo</option>
+                        @endif
                     </select>
                 </div>
 
@@ -39,6 +52,7 @@
                     </div>
                 </div>
 
+                @if(!$isMember)
                 <div class="col-md-6">
                     <label class="form-label small fw-semibold">Chagua Muumini / Mshirika (Kama anajulikana)</label>
                     <select name="member_id" class="form-select">
@@ -51,12 +65,14 @@
                     </select>
                     <small class="text-muted">Inasaidia kuweka rekodi ya utoaji wa muumini.</small>
                 </div>
+                @endif
 
                 <div class="col-md-6">
-                    <label class="form-label small fw-semibold">Jina la Mtoaji (Kama hayupo kwenye orodha)</label>
-                    <input type="text" name="donor_name" class="form-control" placeholder="mfano: Mgeni au 'Usharika Mzima'">
+                    <label class="form-label small fw-semibold">Jina la Mchangiaji *</label>
+                    <input type="text" name="donor_name" class="form-control" placeholder="mfano: Jina Lako Kamili" value="{{ old('donor_name', Auth::user()->name) }}" required>
                 </div>
 
+                @if(!$isMember)
                 <div class="col-md-6">
                     <label class="form-label small fw-semibold">Ibada Husika</label>
                     <select name="service_id" class="form-select">
@@ -66,6 +82,7 @@
                         @endforeach
                     </select>
                 </div>
+                @endif
 
                 <div class="col-md-6">
                     <label class="form-label small fw-semibold">Tarehe ya Utoaji *</label>
@@ -89,16 +106,25 @@
 
                 <div class="col-12">
                     <label class="form-label small fw-semibold">Maelezo ya Ziada / Madhumuni</label>
-                    <textarea name="notes" class="form-control" rows="2" placeholder="mfano: Bahasha No. 12, Shukrani ya mtoto kupona..."></textarea>
+                    <textarea name="notes" class="form-control" rows="2" placeholder="mfano: Awamu ya 1 ya Matofali ya Hekalu..."></textarea>
                 </div>
             </div>
 
-            <div class="alert alert-warning border-0 rounded-3 mt-4 mb-3 d-flex align-items-center gap-3 small">
-                <i class="bi bi-shield-lock-fill fs-4 text-warning"></i>
-                <div>
-                    <strong>Taratibu za Kanisa (Dual-Control & Zaka):</strong> Muamala huu utahifadhiwa ukiwa na hadhi ya <code>Inasubiri Uthibitisho</code>. Mzee wa Kanisa au Mchungaji atathibitisha. <em>Zaka zikithibitishwa na Wazee wa Kanisa huwasilishwa moja kwa moja kwa Mchungaji Kiongozi.</em>
+            @if($isMember)
+                <div class="alert alert-info border-0 rounded-3 mt-4 mb-3 d-flex align-items-center gap-3 small">
+                    <i class="bi bi-shield-check fs-4 text-primary"></i>
+                    <div>
+                        <strong>Uwazi wa Ujenzi & Taratibu za Kanisa:</strong> Mchango wako wa ujenzi utahifadhiwa ukiwa <code>Inasubiri Uthibitisho</code> na Wazee wa Kanisa watathibitisha. Zaka na Sadaka za ibada zinapokelewa na kusimamiwa na Wazee wa Kanisa na Mchungaji pekee.
+                    </div>
                 </div>
-            </div>
+            @else
+                <div class="alert alert-warning border-0 rounded-3 mt-4 mb-3 d-flex align-items-center gap-3 small">
+                    <i class="bi bi-shield-lock-fill fs-4 text-warning"></i>
+                    <div>
+                        <strong>Taratibu za Kanisa (Dual-Control & Zaka):</strong> Muamala huu utahifadhiwa ukiwa na hadhi ya <code>Inasubiri Uthibitisho</code>. Mzee wa Kanisa au Mchungaji atathibitisha. <em>Zaka zikithibitishwa na Wazee wa Kanisa huwasilishwa moja kwa moja kwa Mchungaji Kiongozi.</em>
+                    </div>
+                </div>
+            @endif
 
             <div class="d-flex justify-content-end gap-2 mt-4">
                 <a href="{{ route('finances.index') }}" class="btn btn-light border px-4">Ghairi</a>

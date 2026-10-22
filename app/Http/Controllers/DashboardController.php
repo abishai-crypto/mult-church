@@ -65,35 +65,57 @@ class DashboardController extends Controller
             'children' => $recentAttendances->pluck('children_count')->toArray(),
         ];
 
-        // SHERIA YA KANISA: Mhazini haoni Zaka zilizothibitishwa (zinaenda kwa Mchungaji)
+        // SHERIA YA KANISA: 
+        // 1. Mshirika asione Sadaka za kawaida, Zaka na Shukrani (anaona michango ya ujenzi, miradi na matumizi pekee).
+        // 2. Mhazini haoni Zaka zilizothibitishwa (zinaenda kwa Mchungaji).
+        // 3. Wazee wa Kanisa na Mchungaji pekee wanaona Zaka na Sadaka zote.
+        $isMember = $user->isMember();
         $isTreasurer = $user->isTreasurer();
 
-        if ($isTreasurer) {
+        if ($isMember) {
+            // Mshirika anaona michango ya ujenzi na makusanyo mengine ya miradi pekee
+            $totalConfirmedIncome = FinancialTransaction::where('status', 'confirmed')
+                ->whereIn('category', ['building_offering', 'special_contribution', 'other_income'])
+                ->sum('amount');
+            $totalTithes = null;
+            $totalPendingOfferings = 0;
+            $pendingCount = 0;
+        } elseif ($isTreasurer) {
             $totalConfirmedIncome = FinancialTransaction::where('status', 'confirmed')
                 ->where('category', '!=', 'tithe')
                 ->sum('amount');
             $totalTithes = null;
+            $totalPendingOfferings = FinancialTransaction::where('status', 'pending')->sum('amount');
+            $pendingCount = FinancialTransaction::where('status', 'pending')->count();
         } else {
             $totalConfirmedIncome = FinancialTransaction::where('status', 'confirmed')->sum('amount');
             $totalTithes = FinancialTransaction::where('status', 'confirmed')->where('category', 'tithe')->sum('amount');
+            $totalPendingOfferings = FinancialTransaction::where('status', 'pending')->sum('amount');
+            $pendingCount = FinancialTransaction::where('status', 'pending')->count();
         }
 
-        $totalPendingOfferings = FinancialTransaction::where('status', 'pending')->sum('amount');
-        $pendingCount = FinancialTransaction::where('status', 'pending')->count();
         $totalExpenses = Expense::where('status', 'approved')->sum('amount');
         $netBalance = $totalConfirmedIncome - $totalExpenses;
 
         // Mgawanyo wa Mapato kwa Chati
-        $categoriesMap = [
-            'regular_offering' => 'Sadaka ya Jumapili',
-            'thanksgiving' => 'Sadaka ya Shukrani',
-            'building_offering' => 'Mchango wa Ujenzi',
-            'special_contribution' => 'Michango Maalum',
-        ];
+        if ($isMember) {
+            $categoriesMap = [
+                'building_offering' => 'Mchango wa Ujenzi',
+                'special_contribution' => 'Michango Maalum ya Miradi',
+                'other_income' => 'Makusanyo Mengine',
+            ];
+        } else {
+            $categoriesMap = [
+                'regular_offering' => 'Sadaka ya Jumapili',
+                'thanksgiving' => 'Sadaka ya Shukrani',
+                'building_offering' => 'Mchango wa Ujenzi',
+                'special_contribution' => 'Michango Maalum',
+            ];
 
-        // Mchungaji, Mzee au Admin pekee ndiye anayeona Zaka kwenye grafu
-        if (!$isTreasurer) {
-            $categoriesMap['tithe'] = 'Zaka (Fungu la Kumi)';
+            // Mchungaji, Mzee au Admin pekee ndiye anayeona Zaka kwenye grafu
+            if (!$isTreasurer) {
+                $categoriesMap['tithe'] = 'Zaka (Fungu la Kumi)';
+            }
         }
 
         $financeCategoriesData = [];
@@ -118,7 +140,11 @@ class DashboardController extends Controller
         $recentTransactionsQuery = FinancialTransaction::with(['member', 'enteredBy'])
             ->latest('transaction_date');
 
-        if ($isTreasurer) {
+        if ($isMember) {
+            // Mshirika anaona tu michango ya ujenzi na makusanyo ya miradi yaliyothibitishwa
+            $recentTransactionsQuery->where('status', 'confirmed')
+                ->whereIn('category', ['building_offering', 'special_contribution', 'other_income']);
+        } elseif ($isTreasurer) {
             $recentTransactionsQuery->where(function ($q) {
                 $q->where('category', '!=', 'tithe')
                   ->orWhere('status', 'pending');
@@ -146,7 +172,8 @@ class DashboardController extends Controller
             'activeProjects',
             'pendingPrayersCount',
             'recentTransactions',
-            'isTreasurer'
+            'isTreasurer',
+            'isMember'
         ));
     }
 }

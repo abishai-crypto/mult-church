@@ -1809,13 +1809,20 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Aina ya Sadaka / Mchango <span class="text-danger">*</span></label>
+                            <label class="form-label fw-bold">
+                                {{ (Auth::check() && Auth::user()->isMember()) ? 'Aina ya Mchango wa Miradi' : 'Aina ya Sadaka / Mchango' }} <span class="text-danger">*</span>
+                            </label>
                             <select name="category" class="form-select" required>
-                                <option value="tithe">Zaka ya Mwezi (Tithe)</option>
-                                <option value="regular_offering" selected>Sadaka ya Kawaida (Offering)</option>
-                                <option value="building_offering">Mchango wa Ujenzi wa Hekalu</option>
-                                <option value="thanksgiving">Sadaka ya Shukrani</option>
-                                <option value="special_contribution">Harambee / Mchango Maalum</option>
+                                @if(Auth::check() && Auth::user()->isMember())
+                                    <option value="building_offering" selected>Mchango wa Ujenzi wa Hekalu</option>
+                                    <option value="special_contribution">Harambee / Mchango Maalum wa Miradi</option>
+                                @else
+                                    <option value="regular_offering" selected>Sadaka ya Kawaida (Offering)</option>
+                                    <option value="tithe">Zaka ya Mwezi (Tithe)</option>
+                                    <option value="building_offering">Mchango wa Ujenzi wa Hekalu</option>
+                                    <option value="thanksgiving">Sadaka ya Shukrani</option>
+                                    <option value="special_contribution">Harambee / Mchango Maalum</option>
+                                @endif
                             </select>
                         </div>
 

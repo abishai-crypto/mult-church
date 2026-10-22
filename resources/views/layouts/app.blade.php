@@ -263,11 +263,18 @@
                 <i class="bi bi-clipboard-check-fill"></i> Mahudhurio ya Ibada
             </a>
 
-            @if(!Auth::user()->isMember())
-            <div class="sidebar-heading">Hazina na Fedha</div>
+            <div class="sidebar-heading">
+                @if(Auth::user()->isMember())
+                    Ujenzi na Matumizi
+                @else
+                    Hazina na Fedha
+                @endif
+            </div>
             <a href="{{ route('finances.index') }}" class="nav-link-custom {{ request()->routeIs('finances.index', 'finances.create') ? 'active' : '' }}">
                 <i class="bi bi-cash-stack"></i> 
-                @if(Auth::user()->isTreasurer())
+                @if(Auth::user()->isMember())
+                    Michango ya Ujenzi & Miradi
+                @elseif(Auth::user()->isTreasurer())
                     Sadaka na Michango
                 @else
                     Zaka, Sadaka na Michango
@@ -276,7 +283,6 @@
             <a href="{{ route('finances.expenses') }}" class="nav-link-custom {{ request()->routeIs('finances.expenses*') ? 'active' : '' }}">
                 <i class="bi bi-receipt-cutoff"></i> Matumizi ya Kanisa
             </a>
-            @endif
 
             <div class="sidebar-heading">Uchungaji na Injili</div>
             <a href="{{ route('pastoral.index') }}" class="nav-link-custom {{ request()->routeIs('pastoral.*') ? 'active' : '' }}">

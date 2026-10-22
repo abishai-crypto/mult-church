@@ -92,7 +92,13 @@
             <div class="church-title">{{ $church ? $church->name : 'EVANGELIST ASSEMBLIES OF GOD TANZANIA (EAGT)' }}</div>
             <div class="text-muted small mb-1">{{ $church ? $church->tagline : 'Golani, Kimara-Suka - Dar es Salaam' }}</div>
             <div class="small text-secondary">{{ $church ? $church->address : 'Tanzania' }} | Simu: {{ $church ? $church->phone : '+255 754 123 456' }}</div>
-            <h5 class="fw-bold mt-3 mb-1 text-dark">TAARIFA RASMI YA MAPATO NA MATUMIZI YA KANISA</h5>
+            <h5 class="fw-bold mt-3 mb-1 text-dark">
+                @if($isMember)
+                    TAARIFA RASMI YA MICHANGO YA UJENZI NA MATUMIZI YA KANISA
+                @else
+                    TAARIFA RASMI YA MAPATO NA MATUMIZI YA KANISA
+                @endif
+            </h5>
             <div class="report-badge d-inline-block mt-2">
                 Kipindi: <strong>{{ \Carbon\Carbon::parse($fromDate)->format('d/m/Y') }}</strong> hadi <strong>{{ \Carbon\Carbon::parse($toDate)->format('d/m/Y') }}</strong>
             </div>
@@ -102,7 +108,9 @@
         <div class="row g-3 mb-4">
             <div class="col-4">
                 <div class="summary-box text-center">
-                    <div class="text-muted small text-uppercase">Jumla ya Mapato</div>
+                    <div class="text-muted small text-uppercase">
+                        {{ $isMember ? 'Jumla ya Michango ya Miradi' : 'Jumla ya Mapato' }}
+                    </div>
                     <div class="h5 fw-bold text-success mb-0">Tsh {{ number_format($totalIncome) }}</div>
                 </div>
             </div>
@@ -120,8 +128,14 @@
             </div>
         </div>
 
-        <!-- 1. Mapato yaliyothibitishwa -->
-        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">1. MCHANGANUO WA MAPATO YALIYOTHIBITISHWA</h6>
+        <!-- 1. Mapato / Michango iliyothibitishwa -->
+        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
+            @if($isMember)
+                1. MCHANGANUO WA MICHANGO YA UJENZI NA MIRADI
+            @else
+                1. MCHANGANUO WA MAPATO YALIYOTHIBITISHWA
+            @endif
+        </h6>
         <div class="table-responsive mb-4">
             <table class="table table-bordered table-sm">
                 <thead>
@@ -129,7 +143,7 @@
                         <th>Tarehe</th>
                         <th>Kumbukumbu</th>
                         <th>Mtoaji / Mshirika</th>
-                        <th>Aina ya Sadaka</th>
+                        <th>{{ $isMember ? 'Aina ya Mchango' : 'Aina ya Sadaka' }}</th>
                         <th>Njia ya Malipo</th>
                         <th class="text-end">Kiasi (Tsh)</th>
                     </tr>

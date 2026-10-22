@@ -15,11 +15,24 @@ class FinanceController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        $isMember = $user->isMember();
         $isTreasurer = $user->isTreasurer();
 
         // Miamala inayosubiri uthibitisho (Pending transactions)
         $pendingQuery = FinancialTransaction::with(['member', 'service', 'enteredBy'])
             ->where('status', 'pending');
+
+        if ($isMember) {
+            // Mshirika haoni miamala ya kanisa zima inayosubiri kibali cha wazee
+            // Anaona michango yake mwenyewe ya ujenzi inayosubiri uthibitisho
+            $pendingQuery->where(function ($q) use ($user) {
+                if ($user->member_id) {
+                    $q->where('member_id', $user->member_id);
+                } else {
+                    $q->where('entered_by', $user->id);
+                }
+            })->whereIn('category', ['building_offering', 'special_contribution', 'other_income']);
+        }
 
         $pendingTransactions = $pendingQuery->orderBy('transaction_date', 'desc')->get();
 
@@ -27,15 +40,20 @@ class FinanceController extends Controller
         $confirmedQuery = FinancialTransaction::with(['member', 'service', 'enteredBy', 'approvedBy'])
             ->where('status', 'confirmed');
 
-        // SHERIA YA KANISA: Mhazini haruhusiwi kuona Zaka zilizothibitishwa!
-        // Zaka zikithibitishwa tu na Wazee wa Kanisa hazihifadhiwi, zinaenda moja kwa moja kwa Mchungaji Kiongozi.
-        if ($isTreasurer) {
+        // SHERIA YA KANISA:
+        // 1. Mshirika asione Sadaka za kawaida, Zaka na Shukrani! Aone michango ya ujenzi, miradi na matumizi pekee.
+        // 2. Mhazini haruhusiwi kuona Zaka zilizothibitishwa (zinaenda kwa Mchungaji Kiongozi).
+        // 3. Wazee wa Kanisa na Mchungaji pekee ndio wanaoona Zaka na Sadaka zote.
+        if ($isMember) {
+            $confirmedQuery->whereIn('category', ['building_offering', 'special_contribution', 'other_income']);
+        } elseif ($isTreasurer) {
             $confirmedQuery->where('category', '!=', 'tithe');
         }
 
         if ($request->filled('category')) {
-            if ($isTreasurer && $request->category === 'tithe') {
-                // Mhazini akijaribu kufilter Zaka, asione kitu
+            if ($isMember && !in_array($request->category, ['building_offering', 'special_contribution', 'other_income'])) {
+                $confirmedQuery->whereRaw('1 = 0');
+            } elseif ($isTreasurer && $request->category === 'tithe') {
                 $confirmedQuery->whereRaw('1 = 0');
             } else {
                 $confirmedQuery->where('category', $request->category);
@@ -57,20 +75,28 @@ class FinanceController extends Controller
         $confirmedTransactions = $confirmedQuery->orderBy('transaction_date', 'desc')->paginate(15)->withQueryString();
 
         // Takwimu za Kifedha (Statistics)
-        if ($isTreasurer) {
+        if ($isMember) {
+            // Mshirika anaona michango ya ujenzi na miradi pekee
+            $totalConfirmed = FinancialTransaction::where('status', 'confirmed')
+                ->whereIn('category', ['building_offering', 'special_contribution', 'other_income'])
+                ->sum('amount');
+            $totalTithes = null;
+            $totalRegularOfferings = null;
+        } elseif ($isTreasurer) {
             // Mhazini anaona jumla ya sadaka na michango bila Zaka
             $totalConfirmed = FinancialTransaction::where('status', 'confirmed')
                 ->where('category', '!=', 'tithe')
                 ->sum('amount');
             $totalTithes = null; // Imefichwa kwa Mhazini
+            $totalRegularOfferings = FinancialTransaction::where('status', 'confirmed')->where('category', 'regular_offering')->sum('amount');
         } else {
-            // Mchungaji, Wazee wa Kanisa na Admins wanaona yote ikiwemo Zaka
+            // Mchungaji, Wazee wa Kanisa na Admins wanaona yote ikiwemo Zaka na Sadaka
             $totalConfirmed = FinancialTransaction::where('status', 'confirmed')->sum('amount');
             $totalTithes = FinancialTransaction::where('status', 'confirmed')->where('category', 'tithe')->sum('amount');
+            $totalRegularOfferings = FinancialTransaction::where('status', 'confirmed')->where('category', 'regular_offering')->sum('amount');
         }
 
-        $totalPending = FinancialTransaction::where('status', 'pending')->sum('amount');
-        $totalRegularOfferings = FinancialTransaction::where('status', 'confirmed')->where('category', 'regular_offering')->sum('amount');
+        $totalPending = $pendingTransactions->sum('amount');
         $totalBuilding = FinancialTransaction::where('status', 'confirmed')->where('category', 'building_offering')->sum('amount');
         $totalExpenses = Expense::where('status', 'approved')->sum('amount');
 
@@ -83,20 +109,65 @@ class FinanceController extends Controller
             'totalRegularOfferings',
             'totalBuilding',
             'totalExpenses',
-            'isTreasurer'
+            'isTreasurer',
+            'isMember'
         ));
     }
 
     public function create()
     {
+        $user = Auth::user();
+        $isMember = $user->isMember();
         $members = Member::where('membership_status', 'Active')->orderBy('first_name')->get();
         $services = Service::where('is_active', true)->get();
 
-        return view('finances.create', compact('members', 'services'));
+        return view('finances.create', compact('members', 'services', 'isMember'));
     }
 
     public function store(Request $request)
     {
+        $user = Auth::user();
+
+        // Kama ni mshirika wa kawaida, anaruhusiwa kuwasilisha michango ya ujenzi na miradi pekee
+        if ($user->isMember()) {
+            $validated = $request->validate([
+                'category' => 'required|in:building_offering,special_contribution,other_income',
+                'amount' => 'required|numeric|min:1',
+                'donor_name' => 'nullable|string|max:255',
+                'payment_method' => 'required|in:cash,bank_transfer,mobile_money,cheque,card',
+                'reference_number' => 'nullable|string|max:100',
+                'transaction_date' => 'required|date',
+                'notes' => 'nullable|string',
+            ], [
+                'category.in' => 'Kama mshirika, unaruhusiwa kutoa mchango wa ujenzi na miradi pekee. Zaka na sadaka za ibada zinapokelewa na kusimamiwa na Wazee wa Kanisa na Mchungaji.',
+            ]);
+
+            $transaction = FinancialTransaction::create(array_merge($validated, [
+                'status' => 'pending',
+                'entered_by' => $user->id,
+                'member_id' => $user->member_id,
+                'currency' => 'TZS',
+            ]));
+
+            AuditService::log(
+                'created',
+                "Mshirika ({$user->name}) amewasilisha mchango wa ujenzi wa Tsh " . number_format($transaction->amount) . " (Nambari: {$transaction->transaction_code}) unaosubiri uthibitisho",
+                'FinancialTransaction',
+                $transaction->id
+            );
+
+            AuditService::notifyRole(
+                $transaction->church_id,
+                ['pastor', 'elder', 'treasurer'],
+                'Mchango Mpya wa Ujenzi',
+                "Mshirika {$user->name} amewasilisha mchango wa ujenzi wa Tsh " . number_format($transaction->amount) . " unaongoja uthibitisho.",
+                'info',
+                route('finances.index')
+            );
+
+            return redirect()->route('finances.index')->with('success', "Mchango wako wa Ujenzi wa Tsh " . number_format($transaction->amount) . " umepokelewa salama na unangoja kuthibitishwa na Wazee wa Kanisa. Mungu akubariki sana!");
+        }
+
         $validated = $request->validate([
             'category' => 'required|in:tithe,regular_offering,thanksgiving,building_offering,special_contribution,other_income',
             'amount' => 'required|numeric|min:1',
@@ -292,17 +363,26 @@ class FinanceController extends Controller
     public function exportCsv(Request $request)
     {
         $user = Auth::user();
+        $isMember = $user->isMember();
         $isTreasurer = $user->isTreasurer();
 
         $query = FinancialTransaction::with(['member', 'service', 'approvedBy'])
             ->where('status', 'confirmed');
 
-        if ($isTreasurer) {
+        if ($isMember) {
+            $query->whereIn('category', ['building_offering', 'special_contribution', 'other_income']);
+        } elseif ($isTreasurer) {
             $query->where('category', '!=', 'tithe');
         }
 
         if ($request->filled('category')) {
-            $query->where('category', $request->category);
+            if ($isMember && !in_array($request->category, ['building_offering', 'special_contribution', 'other_income'])) {
+                $query->whereRaw('1 = 0');
+            } elseif ($isTreasurer && $request->category === 'tithe') {
+                $query->whereRaw('1 = 0');
+            } else {
+                $query->where('category', $request->category);
+            }
         }
 
         if ($request->filled('from_date')) {
@@ -368,6 +448,7 @@ class FinanceController extends Controller
     {
         $church = Auth::user()->church;
         $user = Auth::user();
+        $isMember = $user->isMember();
         $isTreasurer = $user->isTreasurer();
 
         $fromDate = $request->get('from_date', now()->startOfMonth()->format('Y-m-d'));
@@ -377,7 +458,9 @@ class FinanceController extends Controller
             ->where('status', 'confirmed')
             ->whereBetween('transaction_date', [$fromDate, $toDate]);
 
-        if ($isTreasurer) {
+        if ($isMember) {
+            $query->whereIn('category', ['building_offering', 'special_contribution', 'other_income']);
+        } elseif ($isTreasurer) {
             $query->where('category', '!=', 'tithe');
         }
 
@@ -401,7 +484,8 @@ class FinanceController extends Controller
             'netBalance',
             'fromDate',
             'toDate',
-            'isTreasurer'
+            'isTreasurer',
+            'isMember'
         ));
     }
 }

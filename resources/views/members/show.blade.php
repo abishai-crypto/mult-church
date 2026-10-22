@@ -119,11 +119,23 @@
             <div class="card-custom p-4 mb-4">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <div>
-                        <h5 class="fw-bold mb-0">Kumbukumbu ya Utoaji wa Muumini</h5>
-                        <small class="text-muted">Sadaka, Zaka na Michango ya Ujenzi iliyothibitishwa</small>
+                        <h5 class="fw-bold mb-0">
+                            @if(isset($isMember) && $isMember)
+                                Kumbukumbu ya Michango ya Ujenzi & Miradi
+                            @else
+                                Kumbukumbu ya Utoaji wa Muumini
+                            @endif
+                        </h5>
+                        <small class="text-muted">
+                            @if(isset($isMember) && $isMember)
+                                Michango ya ujenzi na miradi ya maendeleo iliyothibitishwa
+                            @else
+                                Sadaka, Zaka na Michango ya Ujenzi iliyothibitishwa
+                            @endif
+                        </small>
                     </div>
                     <span class="badge bg-success-subtle text-success fs-6 border border-success-subtle px-3 py-2 rounded-pill">
-                        Jumla ya Utoaji: Tsh {{ number_format($totalGiving) }}
+                        {{ (isset($isMember) && $isMember) ? 'Jumla ya Michango ya Miradi:' : 'Jumla ya Utoaji:' }} Tsh {{ number_format($totalGiving) }}
                     </span>
                 </div>
 
