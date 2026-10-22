@@ -26,25 +26,7 @@ class DashboardController extends Controller
             return redirect()->route('login');
         }
 
-        $isSuperAdminGlobal = $user->isSuperAdmin() && !session()->has('active_church_id');
 
-        if ($isSuperAdminGlobal) {
-            $totalChurches = Church::count();
-            $activeChurches = Church::where('is_active', true)->count();
-            $totalUsers = User::count();
-            $totalMembers = Member::withoutGlobalScope('church')->count();
-            $churches = Church::withCount(['users', 'members'])->orderBy('created_at', 'desc')->get();
-            $recentAuditLogs = AuditLog::withoutGlobalScope('church')->orderBy('created_at', 'desc')->take(8)->get();
-
-            return view('dashboard.superadmin', compact(
-                'totalChurches',
-                'activeChurches',
-                'totalUsers',
-                'totalMembers',
-                'churches',
-                'recentAuditLogs'
-            ));
-        }
 
         // Muktadha wa Kanisa Husika (EAGT Golani) na Fallback Imara
         $churchId = session('active_church_id') ?? $user->church_id;

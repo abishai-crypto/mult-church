@@ -13,11 +13,16 @@ class SuperAdminController extends Controller
 {
     public function index()
     {
-        $churches = Church::withCount(['users', 'members'])->orderBy('created_at', 'desc')->get();
+        $churches = Church::orderBy('created_at', 'desc')->get();
         $totalChurches = $churches->count();
         $activeChurches = $churches->where('is_active', true)->count();
-        $totalUsers = User::count();
+        $totalUsers = User::withoutGlobalScope('church')->count();
         $totalMembers = Member::withoutGlobalScope('church')->count();
+
+        foreach ($churches as $c) {
+            $c->users_count = User::withoutGlobalScope('church')->where('church_id', $c->id)->count();
+            $c->members_count = Member::withoutGlobalScope('church')->where('church_id', $c->id)->count();
+        }
 
         return view('superadmin.churches.index', compact(
             'churches',

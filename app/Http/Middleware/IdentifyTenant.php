@@ -28,23 +28,26 @@ class IdentifyTenant
                 if ($activeId) {
                     $currentChurch = Church::find($activeId);
                 }
-            } else {
+            }
+
+            // Kama kanisa bado halijapatikana (hata kwa Super Admin)
+            if (!$currentChurch) {
                 $churchId = session('active_church_id') ?? $user->church_id;
                 $currentChurch = $churchId ? Church::find($churchId) : null;
                 if (!$currentChurch) {
                     $currentChurch = Church::where('slug', 'eagt-golani')->first() ?? Church::first();
                 }
+            }
 
-                if ($currentChurch) {
-                    session(['active_church_id' => $currentChurch->id]);
+            if ($currentChurch) {
+                session(['active_church_id' => $currentChurch->id]);
 
-                    // If tenant is deactivated or expired
-                    if (!$currentChurch->is_active && !$request->is('logout*')) {
-                        Auth::logout();
-                        $request->session()->invalidate();
-                        $request->session()->regenerateToken();
-                        return redirect()->route('login')->withErrors(['login' => 'Akaunti ya hili tawi la kanisa imesimamishwa. Tafadhali wasiliana na uongozi.']);
-                    }
+                // If tenant is deactivated or expired (Super Admin is never blocked)
+                if (!$currentChurch->is_active && !$user->isSuperAdmin() && !$request->is('logout*')) {
+                    Auth::logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+                    return redirect()->route('login')->withErrors(['login' => 'Akaunti ya hili tawi la kanisa imesimamishwa. Tafadhali wasiliana na uongozi.']);
                 }
             }
         }
