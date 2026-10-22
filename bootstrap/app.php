@@ -22,5 +22,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, \Illuminate\Http\Request $request) {
+            return redirect()->route('login')
+                ->withInput($request->except('password', 'password_confirmation', '_token'))
+                ->with('info', 'Muda wa fomu uliisha kwa usalama (Session Expired). Tafadhali ingiza nenosiri lako tena kuendelea.');
+        });
     })->create();

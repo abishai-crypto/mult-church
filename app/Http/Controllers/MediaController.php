@@ -11,6 +11,30 @@ class MediaController extends Controller
 {
     public function index()
     {
+        // 1. Futa kabisa rekodi ya placeholder video
+        YoutubeVideo::withoutGlobalScope('church')
+            ->where('youtube_id', 'kJQP7kiw5Fk')
+            ->orWhere('video_url', 'like', '%kJQP7kiw5Fk%')
+            ->delete();
+
+        // 2. Hakikisha somo rasmi la Mchungaji Lukas J. Kittu lipo daima
+        $hasSermon = YoutubeVideo::withoutGlobalScope('church')->where('youtube_id', 'DGN4B4CFn3g')->exists();
+        if (!$hasSermon) {
+            $church = \App\Models\Church::where('slug', 'eagt-golani')->first() ?? \App\Models\Church::first();
+            YoutubeVideo::create([
+                'church_id' => $church ? $church->id : 1,
+                'title' => 'Somo: Je, Umegeuzwa Kuwa Mtu Mwingine? | Mchungaji Lukas J. Kittu',
+                'video_url' => 'https://www.youtube.com/watch?v=DGN4B4CFn3g',
+                'youtube_id' => 'DGN4B4CFn3g',
+                'is_live' => false,
+                'preacher_name' => 'Mchungaji Lukas J. Kittu',
+                'sermon_series' => 'Kugeuzwa na Roho Mtakatifu (1 Samweli 10:6)',
+                'sermon_date' => now()->subDays(3)->format('Y-m-d'),
+                'description' => 'Mahubiri ya Neno la Mungu kutoka kwa Mchungaji Kiongozi Lukas J. Kittu katika Hekalu Kuu la EAGT Golani, Kimara-Suka Dar es Salaam: "Naye Roho wa BWANA atakujilia kwa nguvu, nawe utatabiri pamoja nao, nawe UTAGEUZWA kuwa mtu mwingine." (1 Samweli 10:6). Sikiliza ujumbe huu upokee upako na mpenyo wa maisha yako.',
+                'added_by' => Auth::id(),
+            ]);
+        }
+
         $videos = YoutubeVideo::with('addedBy')->orderBy('sermon_date', 'desc')->paginate(9);
         $liveVideo = YoutubeVideo::where('is_live', true)->first();
 

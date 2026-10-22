@@ -42,6 +42,9 @@ if [ "$DB_READY" = "true" ]; then
     echo "Executing database migrations..."
     php artisan migrate --force || echo "Notice: Migrations finished with warnings."
 
+    # Futa kabisa video yoyote ya zamani ya placeholder kwenye database
+    php -r "require 'vendor/autoload.php'; \$app = require_once 'bootstrap/app.php'; \$kernel = \$app->make(Illuminate\Contracts\Console\Kernel::class); \$kernel->bootstrap(); \App\Models\YoutubeVideo::withoutGlobalScope('church')->where('youtube_id', 'kJQP7kiw5Fk')->orWhere('video_url', 'like', '%kJQP7kiw5Fk%')->delete();" || true
+
     echo "Checking if church database needs initial seeding..."
     php artisan db:seed --force || echo "Notice: Seeding completed or skipped."
 else

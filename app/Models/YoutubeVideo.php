@@ -39,6 +39,14 @@ class YoutubeVideo extends Model
         return $this->belongsTo(User::class, 'added_by');
     }
 
+    public function getYoutubeIdAttribute($value): string
+    {
+        if ($value === 'kJQP7kiw5Fk' || empty($value)) {
+            return 'DGN4B4CFn3g';
+        }
+        return $value;
+    }
+
     public function getEmbedUrlAttribute(): string
     {
         return "https://www.youtube.com/embed/{$this->youtube_id}";
@@ -46,9 +54,13 @@ class YoutubeVideo extends Model
 
     public function getAutoThumbnailAttribute(): string
     {
+        $ytId = $this->youtube_id;
+        if ($ytId === 'kJQP7kiw5Fk' || empty($ytId)) {
+            $ytId = 'DGN4B4CFn3g';
+        }
         if ($this->thumbnail_url) {
             return $this->thumbnail_url;
         }
-        return "https://img.youtube.com/vi/{$this->youtube_id}/hqdefault.jpg";
+        return "https://img.youtube.com/vi/{$ytId}/hqdefault.jpg";
     }
 }
